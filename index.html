@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Récapitulatif Service VO 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f7;color:#1d1d1f;min-height:100vh}
+.container{max-width:1200px;margin:0 auto;padding:24px 16px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;background:#fff;padding:16px 20px;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.header h1{font-size:17px;font-weight:600;color:#1d1d1f;display:flex;align-items:center;gap:8px}
+.upload-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #d2d2d7;border-radius:10px;background:#fff;color:#1d1d1f;font-size:13px;cursor:pointer;font-weight:500;transition:background .15s}
+.upload-btn:hover{background:#f5f5f7}
+.upload-btn input{display:none}
+.tabs{display:flex;gap:0;background:#fff;border-radius:12px;padding:4px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.08);width:fit-content}
+.tab{padding:8px 20px;font-size:13px;font-weight:500;color:#6e6e73;cursor:pointer;border-radius:9px;transition:all .15s;display:flex;align-items:center;gap:7px}
+.tab:hover{color:#1d1d1f}
+.tab.active{background:#1d1d1f;color:#fff}
+.tab-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.panel{display:none}.panel.active{display:block}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:20px}
+.kpi{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.kpi-l{font-size:11px;color:#6e6e73;margin-bottom:4px;font-weight:500}
+.kpi-v{font-size:22px;font-weight:600;color:#1d1d1f;line-height:1.1}
+.kpi-s{font-size:10px;color:#aeaeb2;margin-top:2px}
+.section-label{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#aeaeb2;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.section-label::after{content:'';flex:1;height:1px;background:#e5e5ea}
+.badge-att{background:#e3f0fc;color:#0071e3;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;margin-left:8px}
+.tbl-wrap{background:#fff;border-radius:12px;overflow:auto;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:#f5f5f7;color:#6e6e73;font-weight:600;padding:10px 12px;white-space:nowrap;border-bottom:1px solid #e5e5ea;text-align:right;font-size:11px}
+thead th:first-child{text-align:left}
+td{padding:12px 12px;border-bottom:2px solid #e5e5ea;color:#1d1d1f;text-align:right;white-space:nowrap;font-size:12px}
+td:first-child{text-align:left;font-weight:700;font-size:12px}
+tr:last-child td{border-bottom:none}
+tr.tot-row td{font-weight:700;background:#f5f5f7}
+.pos{color:#28a745}.neg{color:#dc3545}.neut{color:#1d1d1f}
+.pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:600}
+.pill-g{background:#d4edda;color:#155724}
+.pill-w{background:#fff3cd;color:#856404}
+.pill-r{background:#f8d7da;color:#721c24}
+.pill-n{background:#f5f5f7;color:#aeaeb2}
+.note{font-size:10px;color:#aeaeb2;padding:0 4px;margin-top:6px}
+.empty-cell{color:#aeaeb2}
+/* Lien remise cliquable */
+.remise-link{color:#dc3545;font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;transition:color .15s}
+.remise-link:hover{color:#a71d2a}
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:820px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #e5e5ea}
+.modal-title{font-size:15px;font-weight:600;color:#1d1d1f}
+.modal-sub{font-size:12px;color:#6e6e73;margin-top:2px}
+.modal-close{width:30px;height:30px;border-radius:50%;border:none;background:#f5f5f7;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#6e6e73;transition:background .15s}
+.modal-close:hover{background:#e5e5ea}
+.modal-body{overflow:auto;padding:16px 20px}
+.modal-total{display:flex;align-items:center;gap:16px;padding:12px 16px;background:#fff3f3;border-radius:10px;margin-bottom:14px;font-size:13px}
+.modal-total strong{font-size:18px;color:#dc3545}
+.modal table{font-size:12px}
+.modal thead th{font-size:11px}
+.modal td,.modal th{padding:7px 10px}
+/* Objectifs */
+.obj-section{background:#fff;border-radius:14px;padding:16px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.obj-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.obj-header h3{font-size:13px;font-weight:600;color:#1d1d1f}
+.obj-header span{font-size:11px;color:#aeaeb2}
+.obj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.obj-item{display:flex;flex-direction:column;gap:6px}
+.obj-label{font-size:11px;font-weight:600;color:#6e6e73;text-transform:uppercase;letter-spacing:.05em}
+.obj-row{display:flex;align-items:center;gap:8px}
+.obj-current{font-size:18px;font-weight:700;color:#1d1d1f}
+.obj-sep{color:#aeaeb2;font-size:14px}
+.obj-input{width:90px;padding:4px 8px;border:1.5px solid #e5e5ea;border-radius:8px;font-size:14px;font-weight:600;text-align:center;font-family:inherit;color:#1d1d1f}
+.obj-input:focus{outline:none;border-color:#0071e3}
+.obj-bar-bg{height:6px;background:#f0f0f0;border-radius:99px;overflow:hidden}
+.obj-bar-fill{height:100%;border-radius:99px;transition:width .4s}
+.obj-pct{font-size:11px;font-weight:600;margin-top:2px}
+@media(max-width:600px){.kpis{grid-template-columns:repeat(2,1fr)}.tab{padding:7px 12px;font-size:12px}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>📊 Récapitulatif Service VO 2026</h1>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span id="lastUpdateLabel" style="font-size:11px;color:#aeaeb2"></span>
+      <label class="upload-btn">⬆ Actualiser (Excel)<input type="file" accept=".xlsx,.xls" id="fileInput"></label>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'juin')"><span class="tab-dot" style="background:#28a745"></span>Juin — M en cours</div>
+    <div class="tab" onclick="switchTab(this,'mai')"><span class="tab-dot" style="background:#fd7e14"></span>Mai — M-1</div>
+    <div class="tab" onclick="switchTab(this,'annee')"><span class="tab-dot" style="background:#0071e3"></span>Année (cumul)</div>
+  </div>
+
+  <!-- OBJECTIFS -->
+  <div class="obj-section">
+    <div class="obj-header">
+      <h3>🎯 Objectifs du mois</h3>
+      <span id="objMoisLabel">Juin 2026</span>
+    </div>
+    <div class="obj-grid" id="objGrid"></div>
+  </div>
+  <div id="panel-annee" class="panel"></div>
+  <div id="panel-juin" class="panel active"></div>
+  <div id="panel-mai" class="panel"></div>
+</div>
+
+<!-- Modal détail remises -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalTitle">Détail des remises</div>
+        <div class="modal-sub" id="modalSub"></div>
+      </div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-total">
+        <span>Total remises :</span>
+        <strong id="modalTotal">—</strong>
+        <span id="modalCount" style="color:#6e6e73"></span>
+      </div>
+      <div class="tbl-wrap" style="margin-bottom:0">
+        <table>
+          <thead><tr>
+            <th style="text-align:left">Vendeur</th>
+            <th style="text-align:left">Marque</th>
+            <th style="text-align:left">Modèle</th>
+            <th style="text-align:left">Immat.</th>
+            <th style="text-align:left">Client</th>
+            <th>Mois</th>
+            <th>Remise TTC</th>
+            <th>Marge HT</th>
+          </tr></thead>
+          <tbody id="modalBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const EXCLUDE=['ALCOPA','CESSION','MARCHAND'];
+const MOIS_NOM={1:'Janvier',2:'Février',3:'Mars',4:'Avril',5:'Mai',6:'Juin',7:'Juillet',8:'Août',9:'Septembre',10:'Octobre',11:'Novembre',12:'Décembre'};
+
+// Données agrégées par vendeur/mois
+const D = {
+  byMois:{
+    1:{marge_all:130578.53,rows:[
+      {v:'BDC',nb:3,mv:5793,remise:0,admin:0,coyote:0,fi:2,ca:53015,euro:0},
+      {v:'CHAUMONT',nb:12,mv:22711,remise:54483,admin:1,coyote:0,fi:4,ca:188771,euro:0},
+      {v:'DONATO',nb:10,mv:24655,remise:5425,admin:3,coyote:2,fi:1,ca:23802,euro:2},
+      {v:'LE GALLO',nb:6,mv:14470,remise:2721,admin:1,coyote:0,fi:1,ca:25000,euro:0},
+      {v:'MOTTAS',nb:2,mv:9672,remise:942,admin:0,coyote:0,fi:1,ca:8000,euro:0},
+      {v:'SAEZ',nb:14,mv:43156,remise:2487,admin:7,coyote:6,fi:5,ca:141102,euro:0},
+    ]},
+    2:{marge_all:138557.18,rows:[
+      {v:'BDC',nb:2,mv:3419,remise:4229,admin:2,coyote:0,fi:0,ca:0,euro:0},
+      {v:'CHAUMONT',nb:9,mv:24557,remise:694,admin:4,coyote:1,fi:4,ca:145989,euro:0},
+      {v:'DONATO',nb:5,mv:2405,remise:1484,admin:1,coyote:0,fi:0,ca:0,euro:0},
+      {v:'LE GALLO',nb:5,mv:5606,remise:2442,admin:1,coyote:0,fi:1,ca:15000,euro:0},
+      {v:'MOTTAS',nb:5,mv:5365,remise:158,admin:2,coyote:0,fi:3,ca:38085,euro:0},
+      {v:'ROUTARD',nb:13,mv:28761,remise:4250,admin:5,coyote:1,fi:1,ca:16130,euro:1},
+      {v:'SAEZ',nb:11,mv:34324,remise:2416,admin:7,coyote:5,fi:4,ca:81498,euro:3},
+    ]},
+    3:{marge_all:108101.87,rows:[
+      {v:'BDC',nb:2,mv:3233,remise:402,admin:2,coyote:0,fi:0,ca:0,euro:0},
+      {v:'CHAUMONT',nb:10,mv:15974,remise:6694,admin:1,coyote:0,fi:1,ca:26976,euro:0},
+      {v:'DONATO',nb:8,mv:14089,remise:1443,admin:2,coyote:3,fi:4,ca:67435,euro:1},
+      {v:'LE GALLO',nb:9,mv:10236,remise:3113,admin:2,coyote:1,fi:2,ca:43602,euro:0},
+      {v:'MOTTAS',nb:11,mv:23400,remise:0,admin:8,coyote:0,fi:7,ca:190200,euro:0},
+      {v:'ROUTARD',nb:28,mv:34257,remise:6420,admin:6,coyote:3,fi:7,ca:151897,euro:0},
+      {v:'SAEZ',nb:1,mv:3243,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:0},
+    ]},
+    4:{marge_all:119380.02,rows:[
+      {v:'BDC',nb:2,mv:3119,remise:0,admin:0,coyote:0,fi:0,ca:0,euro:1},
+      {v:'CHAUMONT',nb:5,mv:18815,remise:381,admin:3,coyote:0,fi:2,ca:34574,euro:0},
+      {v:'DONATO',nb:13,mv:24546,remise:0,admin:9,coyote:2,fi:5,ca:97391,euro:0},
+      {v:'LE GALLO',nb:8,mv:13072,remise:0,admin:5,coyote:0,fi:2,ca:38397,euro:2},
+      {v:'MOTTAS',nb:6,mv:6608,remise:0,admin:4,coyote:0,fi:3,ca:57017,euro:0},
+      {v:'ROUTARD',nb:19,mv:35912,remise:64,admin:9,coyote:2,fi:8,ca:253304,euro:0},
+      {v:'SAEZ',nb:5,mv:15211,remise:0,admin:3,coyote:5,fi:3,ca:94488,euro:0},
+    ]},
+    5:{marge_all:118047.88,rows:[
+      {v:'BDC',nb:1,mv:2607,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:1},
+      {v:'CHAUMONT',nb:4,mv:6336,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:0},
+      {v:'DONATO',nb:10,mv:46941,remise:0,admin:8,coyote:1,fi:4,ca:175007,euro:0},
+      {v:'LE GALLO',nb:2,mv:2147,remise:0,admin:0,coyote:0,fi:0,ca:0,euro:1},
+      {v:'ROUTARD',nb:15,mv:40294,remise:3094,admin:11,coyote:3,fi:6,ca:102788,euro:0},
+      {v:'SAEZ',nb:7,mv:10698,remise:0,admin:5,coyote:4,fi:1,ca:31819,euro:0},
+    ]},
+    6:{marge_all:6801.07,rows:[
+      {v:'ROUTARD',nb:1,mv:-649,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:0},
+    ]},
+  },
+  att:[
+    {v:'CHAUMONT',nb:4,mv:1715,remise:0,admin:2,coyote:1,fi:2,ca:64984,euro:0},
+    {v:'DIRECTION',nb:1,mv:8000,remise:0,admin:1,coyote:1,fi:0,ca:0,euro:0},
+    {v:'DONATO',nb:1,mv:3078,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:0},
+    {v:'LE GALLO',nb:3,mv:14280,remise:0,admin:3,coyote:1,fi:1,ca:21706,euro:2},
+    {v:'MOTTAS',nb:1,mv:-1800,remise:4074,admin:0,coyote:0,fi:0,ca:0,euro:0},
+    {v:'SAEZ',nb:2,mv:5253,remise:4730,admin:2,coyote:1,fi:0,ca:0,euro:0},
+  ],
+  // Détail ligne par ligne pour les remises (chargé depuis Excel ou précalculé)
+  detail:[]
+};
+
+// Détail précalculé depuis le fichier actuel
+D.detail = [
+  {v:'BDC',mois:2,marque:'MERCEDES',modele:'CLASSE A',immat:'HA-524-PR',client:'GROLLET',remise:492,marge:275.66,fact:true},
+  {v:'BDC',mois:2,marque:'AM',modele:'JEEP',immat:'FG-660-BW',client:'GAUTRON',remise:3736.76,marge:3142.97,fact:true},
+  {v:'BDC',mois:3,marque:'AM',modele:'MINI',immat:'GB-473-QF',client:'REBION',remise:401.66,marge:1674.69,fact:true},
+  {v:'CHAUMONT',mois:1,marque:'MERCEDES',modele:'R604',immat:'HH-614-ZD',client:'PAYTWEAK',remise:52833.76,marge:12139.79,fact:true},
+  {v:'CHAUMONT',mois:1,marque:'MERCEDES',modele:'CLASSE C',immat:'EL-653-ZE',client:'CAPPELAERE',remise:1027.28,marge:1329.26,fact:true},
+  {v:'CHAUMONT',mois:1,marque:'AM',modele:'F2',immat:'FS-105-MW',client:'CRAHAY',remise:622,marge:1678.3,fact:true},
+  {v:'CHAUMONT',mois:2,marque:'MERCEDES',modele:'GLB',immat:'GL-676-TS',client:'HATTON',remise:193.94,marge:2875.93,fact:true},
+  {v:'CHAUMONT',mois:2,marque:'AM',modele:'F2',immat:'GD-315-CQ',client:'GARCIA',remise:500,marge:3155.27,fact:true},
+  {v:'CHAUMONT',mois:3,marque:'MERCEDES',modele:'GLC',immat:'GN-388-JP',client:'GASTRONOME',remise:2795.76,marge:2280.86,fact:true},
+  {v:'CHAUMONT',mois:3,marque:'MERCEDES',modele:'CLE',immat:'HH-391-DL',client:'SOTO',remise:673.76,marge:7486.71,fact:true},
+  {v:'CHAUMONT',mois:3,marque:'MERCEDES',modele:'CLE',immat:'HA-820-BG',client:'AGENCE FRANCAISE',remise:1173.76,marge:3383.29,fact:true},
+  {v:'CHAUMONT',mois:3,marque:'MERCEDES',modele:'CLASSE C',immat:'HD-465-CA',client:'CHEFFAJ',remise:1404.58,marge:2195.04,fact:true},
+  {v:'CHAUMONT',mois:3,marque:'MERCEDES',modele:'GLA',immat:'GD-758-MJ',client:'VIGNONI',remise:161.56,marge:545.37,fact:true},
+  {v:'CHAUMONT',mois:3,marque:'MERCEDES',modele:'CLASSE A',immat:'GE-982-VR',client:'ZOCCO',remise:484.8,marge:1922.97,fact:true},
+  {v:'CHAUMONT',mois:4,marque:'AM',modele:'SMART',immat:'GC-898-NM',client:'RUBER',remise:71,marge:1337.16,fact:true},
+  {v:'CHAUMONT',mois:4,marque:'MERCEDES',modele:'GLE',immat:'GT-940-HT',client:'BOUTEFROY',remise:309.82,marge:8601.21,fact:true},
+  {v:'DONATO',mois:1,marque:'MERCEDES',modele:'EQB',immat:'GH-838-RJ',client:'KLEIN',remise:2790,marge:3124.14,fact:true},
+  {v:'DONATO',mois:1,marque:'MERCEDES',modele:'CLASSE E',immat:'GW-270-KK',client:'VORONOV',remise:2000,marge:1890.19,fact:true},
+  {v:'DONATO',mois:1,marque:'MERCEDES',modele:'CLASSE A',immat:'GD-666-YL',client:'DUFAIT',remise:635,marge:5152.49,fact:true},
+  {v:'DONATO',mois:2,marque:'MERCEDES',modele:'CLASSE A',immat:'HJ-082-JN',client:'MOURTADA',remise:810.76,marge:-1648.66,fact:true},
+  {v:'DONATO',mois:2,marque:'MERCEDES',modele:'GLE 350DE',immat:'GK-772-JH',client:'BERGERON',remise:673,marge:1657.01,fact:true},
+  {v:'DONATO',mois:3,marque:'MERCEDES',modele:'GLA',immat:'FS-672-YJ',client:'BONFIGLIO',remise:898,marge:1614.2,fact:true},
+  {v:'DONATO',mois:3,marque:'MERCEDES',modele:'CLASSE A',immat:'HB-443-YT',client:'CHARBIT',remise:544.76,marge:-436.34,fact:true},
+  {v:'LE GALLO',mois:1,marque:'MERCEDES',modele:'GLA 200',immat:'GS-160-ZA',client:'OKALA',remise:9,marge:4812.35,fact:true},
+  {v:'LE GALLO',mois:1,marque:'MERCEDES',modele:'GLE',immat:'HB-515-ED',client:'BENSOUNA',remise:2639.76,marge:5051.72,fact:true},
+  {v:'LE GALLO',mois:1,marque:'MERCEDES',modele:'CLASSE A',immat:'HB-410-YT',client:'FERNANDEZ',remise:72.4,marge:-251.55,fact:true},
+  {v:'LE GALLO',mois:2,marque:'MERCEDES',modele:'CLS',immat:'DA-418-HB',client:'VISITAYEV',remise:131,marge:500,fact:true},
+  {v:'LE GALLO',mois:2,marque:'AM',modele:'Q2',immat:'GD-970-KM',client:'AUTO SPORT TOULON',remise:1411,marge:3398.67,fact:true},
+  {v:'LE GALLO',mois:2,marque:'MERCEDES',modele:'CLA',immat:'GV-373-ZC',client:'LENOIR',remise:900,marge:0,fact:true},
+  {v:'LE GALLO',mois:3,marque:'MERCEDES',modele:'EQB',immat:'GT-066-JF',client:'BERTHAUD',remise:500,marge:2012.82,fact:true},
+  {v:'LE GALLO',mois:3,marque:'MERCEDES',modele:'GLA',immat:'GW-842-TX',client:'BOISSIERE',remise:112.65,marge:-3450.37,fact:true},
+  {v:'LE GALLO',mois:3,marque:'MERCEDES',modele:'AMG GT',immat:'FJ-539-EB',client:'MARTINS GONCALVES',remise:1500,marge:4313.87,fact:true},
+  {v:'LE GALLO',mois:3,marque:'AM',modele:'AUDI',immat:'HD-272-XD',client:'ROVERA',remise:500,marge:175.31,fact:true},
+  {v:'LE GALLO',mois:3,marque:'AM',modele:'AUDI',immat:'HC-601-EV',client:'ROVERA',remise:500,marge:886.97,fact:true},
+  {v:'MOTTAS',mois:1,marque:'MERCEDES',modele:'CLASSE C',immat:'FR-168-XQ',client:'KIELBASA',remise:941.86,marge:5590.99,fact:true},
+  {v:'MOTTAS',mois:2,marque:'MERCEDES',modele:'GLA 200D',immat:'HJ-039-XS',client:'DELCOURT',remise:158.4,marge:2522.8,fact:true},
+  {v:'MOTTAS',mois:null,marque:'MERCEDES',modele:'SL',immat:'GP-843-VC',client:'BERRIN',remise:4073.76,marge:500,fact:false},
+  {v:'ROUTARD',mois:2,marque:'MERCEDES',modele:'CLASSE A',immat:'HJ-336-JN',client:'POUYLEAU',remise:317,marge:139.79,fact:true},
+  {v:'ROUTARD',mois:2,marque:'MERCEDES',modele:'GLA 200D',immat:'3195MYG',client:'GLM ALPILLES',remise:1000,marge:437.18,fact:true},
+  {v:'ROUTARD',mois:2,marque:'AM',modele:'MG4',immat:'GR-380-EY',client:'OUAQERROUCH',remise:390,marge:707.3,fact:true},
+  {v:'ROUTARD',mois:2,marque:'AM',modele:'ASTRA',immat:'GP-828-FQ',client:'ROSFELDER',remise:522.24,marge:1823.53,fact:true},
+  {v:'ROUTARD',mois:2,marque:'MERCEDES',modele:'CLASSE B',immat:'FT-938-XN',client:'SERGE BORDIN',remise:200.21,marge:3477.51,fact:true},
+  {v:'ROUTARD',mois:2,marque:'MERCEDES',modele:'CLASSE C',immat:'HD-895-PG',client:'JOHN HAIGH',remise:1764.08,marge:3509.25,fact:true},
+  {v:'ROUTARD',mois:2,marque:'MERCEDES',modele:'GLA 250 E',immat:'HD-527-CV',client:'AGOERGES',remise:56.76,marge:3544.56,fact:true},
+  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'EQE',immat:'HB-458-AX',client:'CHUVAEVA',remise:611,marge:346.42,fact:true},
+  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'CLE',immat:'GW-585-NF',client:'ABF SAS',remise:124.76,marge:1265.83,fact:true},
+  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'GLC',immat:'GE-087-QA',client:'AVA LUXURY',remise:340,marge:4018.95,fact:true},
+  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'GLC',immat:'GH-633-BX',client:'DOS SANTOS',remise:138.63,marge:-600.81,fact:true},
+  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'GLA',immat:'HB-033-WE',client:'BOR',remise:7.87,marge:763.54,fact:true},
+  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'GLA',immat:'HA-581-EJ',client:'GAIT',remise:493.76,marge:4234.21,fact:true},
+  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'CLASSE C',immat:'HC-546-AL',client:'KHALOUAOUI',remise:1038.92,marge:-1376.4,fact:true},
+  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'GLA',immat:'3268MYG',client:'ICART',remise:23,marge:2163.17,fact:true},
+  {v:'ROUTARD',mois:3,marque:'AM',modele:'IGNIS',immat:'GR-765-DD',client:'MC EXPORT',remise:800,marge:1166.67,fact:true},
+  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'GLA',immat:'HD-959-YL',client:'MORAINE',remise:48.19,marge:679.75,fact:true},
+  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'CLASSE A',immat:'HJ-626-VC',client:'MATE',remise:385.64,marge:441.23,fact:true},
+  {v:'ROUTARD',mois:3,marque:'AM',modele:'TCROSS',immat:'GJ-377-XX',client:'MATTAS',remise:8.76,marge:227.61,fact:true},
+  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'CLASSE C',immat:'HD-853-QL',client:'SOLY',remise:160.6,marge:681.74,fact:true},
+  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'GLA',immat:'HK-464-BF',client:'TREMOLIERE',remise:182.06,marge:-935.32,fact:true},
+  {v:'ROUTARD',mois:3,marque:'AM',modele:'X3',immat:'GK-171-PT',client:'PHAURE',remise:583.76,marge:349.4,fact:true},
+  {v:'ROUTARD',mois:4,marque:'MERCEDES',modele:'CLASSE A',immat:'HB-265-YT',client:'QUIGNON/PALLANCA',remise:63.76,marge:-1215.35,fact:true},
+  {v:'ROUTARD',mois:5,marque:'AM',modele:'POLO',immat:'GT-121-AW',client:'HUBERT',remise:286.59,marge:218.38,fact:true},
+  {v:'ROUTARD',mois:5,marque:'MERCEDES',modele:'CLASSE A',immat:'FY-257-CL',client:'BROQUA',remise:255.58,marge:2931.32,fact:true},
+  {v:'ROUTARD',mois:5,marque:'MERCEDES',modele:'GLC',immat:'GX-260-PR',client:'CAIULO',remise:2551.76,marge:5239.44,fact:true},
+  {v:'SAEZ',mois:1,marque:'MERCEDES',modele:'CLASSE',immat:'DX-439-EE',client:'REYGNIER',remise:900,marge:4449.47,fact:true},
+  {v:'SAEZ',mois:1,marque:'MERCEDES',modele:'GLC 300',immat:'GZ-935-ZK',client:'COURTIGO',remise:538.51,marge:6363.9,fact:true},
+  {v:'SAEZ',mois:1,marque:'AM',modele:'F2',immat:'GK-907-JZ',client:'BG & ASSOCIES',remise:48.51,marge:791.29,fact:true},
+  {v:'SAEZ',mois:1,marque:'MERCEDES',modele:'GLC',immat:'GG-716-CA',client:'SCIMONE',remise:75.49,marge:42.84,fact:true},
+  {v:'SAEZ',mois:1,marque:'MERCEDES',modele:'CLA',immat:'GL-656-BP',client:'SAVOLDELLI',remise:302.46,marge:3418.08,fact:true},
+  {v:'SAEZ',mois:1,marque:'AM',modele:'A1',immat:'GK-090-QT',client:'LARSONNIER',remise:322.84,marge:4963.35,fact:true},
+  {v:'SAEZ',mois:1,marque:'MERCEDES',modele:'GLE',immat:'GH-787-YX',client:'BURDUJA',remise:298.76,marge:6951.63,fact:true},
+  {v:'SAEZ',mois:2,marque:'MERCEDES',modele:'GLA 200D',immat:'GH-248-DZ',client:'CARVALHO DE PINA',remise:153.36,marge:5886.5,fact:true},
+  {v:'SAEZ',mois:2,marque:'AM',modele:'MAZDA3',immat:'GH-114-GQ',client:'PAUL-HAZARD',remise:208.76,marge:1183.7,fact:true},
+  {v:'SAEZ',mois:2,marque:'MERCEDES',modele:'CLASSE C',immat:'GK-805-HY',client:'GRAVA',remise:93.99,marge:3004.7,fact:true},
+  {v:'SAEZ',mois:2,marque:'MERCEDES',modele:'GLC',immat:'FM-692-DD',client:'RADINEZ',remise:1000,marge:4929.86,fact:true},
+  {v:'SAEZ',mois:2,marque:'AM',modele:'X6',immat:'GM-856-CD',client:'REVUZ',remise:959.76,marge:7431.71,fact:true},
+  {v:'SAEZ',mois:null,marque:'MERCEDES',modele:'CLASSE G',immat:'HA-864-AT',client:'PETROV ENERGY',remise:4729.76,marge:500,fact:false},
+];
+
+function fmtE(v){const r=Math.round(v);return(r<0?'− ':'')+Math.abs(r).toLocaleString('fr-FR')+' €'}
+function fmtE2(v){return(v<0?'− ':'')+Math.abs(v).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
+function fmtK(v){if(!v||Math.round(v)===0)return'—';const r=Math.round(v/1000);return(r<0?'− ':'')+Math.abs(r).toLocaleString('fr-FR')+' k€'}
+function pct(a,b){return b?Math.round(a/b*100)+'%':'—'}
+function pcFI(p){const v=parseInt(p)||0;return v>=40?'pill pill-g':v>0?'pill pill-r':'pill pill-n'}
+function pcAdmin(p){const v=parseInt(p)||0;return v>=80?'pill pill-g':v>0?'pill pill-r':'pill pill-n'}
+function pcCoyote(p){const v=parseInt(p)||0;return v>=40?'pill pill-g':v>=25?'pill pill-w':v>0?'pill pill-r':'pill pill-n'}
+function pcEuro(p){const v=parseInt(p)||0;return v>=40?'pill pill-g':v>=25?'pill pill-w':v>0?'pill pill-r':'pill pill-n'}
+function pc(p,type){return type==='admin'?pcAdmin(p):type==='coyote'?pcCoyote(p):pcFI(p)}
+
+function mergeMonths(moisList){
+  const byV={};let marge_all=0;
+  for(const m of moisList){
+    const md=D.byMois[m];if(!md)continue;
+    marge_all+=md.marge_all;
+    for(const r of md.rows){
+      if(!byV[r.v])byV[r.v]={v:r.v,nb:0,mv:0,remise:0,admin:0,coyote:0,fi:0,ca:0,euro:0};
+      byV[r.v].nb+=r.nb;byV[r.v].mv+=r.mv;byV[r.v].remise+=r.remise;
+      byV[r.v].admin+=r.admin;byV[r.v].coyote+=r.coyote;byV[r.v].fi+=r.fi;byV[r.v].ca+=r.ca;byV[r.v].euro+=(r.euro||0);
+    }
+  }
+  return{rows:Object.values(byV).sort((a,b)=>a.v.localeCompare(b.v)),marge_all};
+}
+function sumRows(rows){return rows.reduce((t,r)=>{t.nb+=r.nb;t.mv+=r.mv;t.remise+=r.remise;t.admin+=r.admin;t.coyote+=r.coyote;t.fi+=r.fi;t.ca+=r.ca;t.euro+=(r.euro||0);return t},{nb:0,mv:0,remise:0,admin:0,coyote:0,fi:0,ca:0,euro:0})}
+
+// Modal remise
+function openRemise(vendeur, moisList, attente){
+  if(typeof moisList==='string'&&moisList!=='all'&&moisList!=='att'){
+    try{moisList=JSON.parse(moisList);}catch(e){moisList=[];}
+  }
+  if(moisList==='att') attente=true;
+  let lines;
+  if(attente){
+    lines=D.detail.filter(d=>d.v===vendeur&&!d.fact&&d.remise>0);
+  } else if(moisList==='all'){
+    lines=D.detail.filter(d=>d.v===vendeur&&d.fact&&d.remise>0);
+  } else {
+    lines=D.detail.filter(d=>d.v===vendeur&&d.fact&&d.remise>0&&moisList.map(Number).includes(Number(d.mois)));
+  }
+  if(!lines.length){alert('Aucun détail disponible pour ces remises.');return;}
+  lines.sort((a,b)=>(b.remise-a.remise));
+  const total=lines.reduce((s,l)=>s+l.remise,0);
+  document.getElementById('modalTitle').textContent='Détail remises — '+vendeur;
+  const periode=attente?'En attente':moisList==='all'?'Année 2026':moisList.map(m=>MOIS_NOM[m]).join(', ');
+  document.getElementById('modalSub').textContent=periode;
+  document.getElementById('modalTotal').textContent=fmtE2(total);
+  document.getElementById('modalCount').textContent=lines.length+' véhicule'+(lines.length>1?'s':'');
+  document.getElementById('modalBody').innerHTML=lines.map(l=>`<tr>
+    <td style="text-align:left">${l.marque||'—'}</td>
+    <td style="text-align:left">${l.modele||'—'}</td>
+    <td style="text-align:left;font-family:monospace;font-size:11px">${l.immat||'—'}</td>
+    <td style="text-align:left">${l.client||'—'}</td>
+    <td>${l.mois?MOIS_NOM[l.mois].substring(0,3):'Att.'}</td>
+    <td class="neg" style="font-weight:600">${fmtE2(l.remise)}</td>
+    <td class="${l.marge<0?'neg':'pos'}">${fmtE2(l.marge)}</td>
+  </tr>`).join('');
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(e){if(e.target===document.getElementById('modalOverlay'))closeModalDirect();}
+function closeModalDirect(){document.getElementById('modalOverlay').classList.remove('open');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModalDirect();});
+
+// Détail remises global (depuis KPI) — tous vendeurs du panel actif
+let _currentMoisList = [6]; // Juin est l'onglet par défaut
+function openRemisesGlobal(){
+  const lines = D.detail.filter(d=>d.remise>0&&d.fact&&_currentMoisList.map(Number).includes(Number(d.mois)));
+  if(!lines.length){alert('Aucune remise pour cette période.');return;}
+  lines.sort((a,b)=>b.remise-a.remise);
+  const total = lines.reduce((s,l)=>s+l.remise,0);
+  document.getElementById('modalTitle').textContent = 'Détail des remises — Tous vendeurs';
+  document.getElementById('modalSub').textContent = lines.length+' véhicule'+(lines.length>1?'s':'');
+  document.getElementById('modalTotal').textContent = fmtE2(total);
+  document.getElementById('modalCount').textContent = '';
+  document.getElementById('modalBody').innerHTML = lines.map(l=>`<tr>
+    <td style="text-align:left;font-weight:600">${l.v||'—'}</td>
+    <td style="text-align:left">${l.marque||'—'}</td>
+    <td style="text-align:left">${l.modele||'—'}</td>
+    <td style="text-align:left;font-family:monospace;font-size:11px">${l.immat||'—'}</td>
+    <td style="text-align:left">${l.client||'—'}</td>
+    <td>${l.mois?MOIS_NOM[l.mois].substring(0,3):'Att.'}</td>
+    <td class="neg" style="font-weight:600">${fmtE2(l.remise)}</td>
+    <td class="${l.marge<0?'neg':'pos'}">${fmtE2(l.marge)}</td>
+  </tr>`).join('');
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+const HDR=`<thead><tr>
+  <th style="text-align:left">Vendeur</th>
+  <th>Nbre fact.</th><th>Marge VO HT</th>
+  <th>Nbre FI</th><th>% FI</th><th>Décaiss. FI</th>
+  <th>Nbre Admin</th><th>% Admin</th>
+  <th>Nbre Coyote</th><th>% Coyote</th>
+  <th>Nbre Euro</th><th>% Euro</th>
+  <th>Remises TTC</th>
+</tr></thead>`;
+
+// Registre des remises cliquables
+const _remiseRegistry = {};
+let _remiseIdx = 0;
+
+function remiseCell(r, moisList, attente){
+  if(!r.remise||r.remise===0) return '<span class="empty-cell">—</span>';
+  const key = 'r' + (_remiseIdx++);
+  _remiseRegistry[key] = {vendeur: r.v, moisList, attente};
+  return `<span class="remise-link" onclick="handleRemise('${key}')">${fmtE(r.remise)}</span>`;
+}
+function handleRemise(key){
+  const d = _remiseRegistry[key];
+  if(!d) return;
+  openRemise(d.vendeur, d.moisList, d.attente);
+}
+
+function tblRows(rows,marge_all_total,showMargeVend,moisList,attente){
+  if(!rows||!rows.length)return'<tr><td colspan="13" style="text-align:center;color:#aeaeb2;padding:20px">Aucune donnée</td></tr>';
+  let h='';
+  for(const r of rows){
+    const pfi=pct(r.fi,r.nb),padm=pct(r.admin,r.nb),pco=pct(r.coyote,r.nb),peu=pct(r.euro||0,r.nb);
+    const marg=showMargeVend?fmtE2(r.mv):'—';
+    h+=`<tr>
+      <td>${r.v}</td><td>${r.nb}</td>
+      <td class="neut">${marg}</td>
+      <td>${r.fi||'<span class="empty-cell">—</span>'}</td><td><span class="${pcFI(pfi)}">${pfi}</span></td><td>${r.ca>0?fmtE(r.ca):'—'}</td>
+      <td>${r.admin||'<span class="empty-cell">—</span>'}</td><td><span class="${pcAdmin(padm)}">${padm}</span></td>
+      <td>${r.coyote||'<span class="empty-cell">—</span>'}</td><td><span class="${pcCoyote(pco)}">${pco}</span></td>
+      <td>${(r.euro||0)||'<span class="empty-cell">—</span>'}</td><td><span class="${pcEuro(peu)}">${peu}</span></td>
+      <td>${remiseCell(r,moisList,attente)}</td>
+    </tr>`;
+  }
+  const t=sumRows(rows);
+  const pfi=pct(t.fi,t.nb),padm=pct(t.admin,t.nb),pco=pct(t.coyote,t.nb),peu=pct(t.euro,t.nb);
+  const totalMarge=marge_all_total!==undefined?marge_all_total:t.mv;
+  h+=`<tr class="tot-row">
+    <td>TOTAL</td><td>${t.nb}</td>
+    <td class="neut">${fmtE2(totalMarge)}</td>
+    <td>${t.fi}</td><td><span class="${pcFI(pfi)}">${pfi}</span></td><td>${t.ca>0?fmtE(t.ca):'—'}</td>
+    <td>${t.admin}</td><td><span class="${pcAdmin(padm)}">${padm}</span></td>
+    <td>${t.coyote}</td><td><span class="${pcCoyote(pco)}">${pco}</span></td>
+    <td>${t.euro}</td><td><span class="${pcEuro(peu)}">${peu}</span></td>
+    <td class="${t.remise>0?'neg':'empty-cell'}">${t.remise>0?fmtE(t.remise):'—'}</td>
+  </tr>`;
+  return h;
+}
+
+function kpisHtml(t,marge_all,attNb){
+  const pfi=pct(t.fi,t.nb),padm=pct(t.admin,t.nb),pco=pct(t.coyote,t.nb),peu=pct(t.euro,t.nb);
+  const marg=marge_all!==undefined?marge_all:t.mv;
+  return`
+    <div class="kpi"><div class="kpi-l">Factures émises</div><div class="kpi-v">${t.nb}</div><div class="kpi-s">vendeurs uniquement</div></div>
+    <div class="kpi"><div class="kpi-l">Marge VO HT</div><div class="kpi-v ${marg<0?'neg':''}" style="font-size:16px;white-space:nowrap">${fmtE2(marg)}</div><div class="kpi-s">col. M — toutes lignes</div></div>
+    <div class="kpi"><div class="kpi-l">% FI</div><div class="kpi-v">${pfi}</div><div class="kpi-s">${t.fi} dossier${t.fi>1?'s':''}</div></div>
+    <div class="kpi"><div class="kpi-l">Décaissement FI</div><div class="kpi-v">${t.ca>0?fmtE(t.ca):'—'}</div><div class="kpi-s">montant total</div></div>
+    <div class="kpi"><div class="kpi-l">% Admin</div><div class="kpi-v">${padm}</div><div class="kpi-s">${t.admin} frais admin</div></div>
+    <div class="kpi"><div class="kpi-l">% Coyote</div><div class="kpi-v">${pco}</div><div class="kpi-s">${t.coyote} coyotes</div></div>
+    <div class="kpi"><div class="kpi-l">% Eurodatacar</div><div class="kpi-v">${peu}</div><div class="kpi-s">${t.euro} eurodatacar</div></div>
+    <div class="kpi" style="cursor:pointer" onclick="openRemisesGlobal()"><div class="kpi-l">Remises TTC</div><div class="kpi-v ${t.remise>0?'neg':''}">${t.remise>0?fmtE(t.remise):'—'}</div><div class="kpi-s">🔍 cliquer pour détail</div></div>
+    ${attNb!==undefined?`<div class="kpi"><div class="kpi-l">En attente</div><div class="kpi-v" style="color:#fd7e14">${attNb}</div><div class="kpi-s">non facturés</div></div>`:''}`;
+}
+
+function renderSimple(panelId,moisList){
+  const{rows,marge_all}=mergeMonths(moisList);
+  const t=sumRows(rows);
+  const ml=moisList==='all'?'all':moisList;
+  document.getElementById(panelId).innerHTML=`
+    <div class="kpis">${kpisHtml(t,marge_all,undefined)}</div>
+    <div class="section-label">✅ Factures émises</div>
+    <div class="tbl-wrap"><table>${HDR}<tbody>${tblRows(rows,marge_all,true,ml,false)}</tbody></table></div>
+    <p class="note">* Nbre factures = vendeurs uniquement (hors ALCOPA, CESSION, MARCHAND). Marge = colonne M toutes lignes. Cliquez sur un montant de remise pour voir le détail.</p>`;
+}
+
+function renderJuin(){
+  const att=D.att;
+  const tAtt=sumRows(att);
+  const{rows,marge_all}=mergeMonths([6]);
+  const t=sumRows(rows);
+  document.getElementById('panel-juin').innerHTML=`
+    <div class="kpis">${kpisHtml(t,marge_all,tAtt.nb)}</div>
+    <div class="section-label" style="color:#1d1d1f">🕐 Commandes en attente<span class="badge-att">${tAtt.nb} dossier${tAtt.nb>1?'s':''}</span></div>
+    <div class="tbl-wrap"><table>${HDR}<tbody>${tblRows(att,undefined,true,null,true)}</tbody></table></div>
+    <p class="note">* En attente = toutes commandes sans date de facture. Cliquez sur un montant de remise pour voir le détail.</p>`;
+}
+
+function renderAll(){
+  Object.keys(_remiseRegistry).forEach(k => delete _remiseRegistry[k]);
+  _remiseIdx = 0;
+  renderSimple('panel-annee',[1,2,3,4,5,6]);
+  renderJuin();
+  renderSimple('panel-mai',[5]);
+  // Initialiser objectifs sur Juin par défaut
+  const{rows,marge_all}=mergeMonths([6]);
+  updateObjectifsFromPanel('juin',rows,marge_all);
+}
+
+// ─── OBJECTIFS ───
+const MOIS_LABELS = {juin:'Juin 2026', mai:'Mai 2026', annee:'Année 2026'};
+let currentTab = 'juin';
+
+// Charger objectifs depuis localStorage
+function loadObj(){
+  try{ return JSON.parse(localStorage.getItem('recap_vo_obj')||'null')||{}; }
+  catch(e){ return {}; }
+}
+function saveObj(obj){ localStorage.setItem('recap_vo_obj', JSON.stringify(obj)); }
+
+let OBJECTIFS = loadObj();
+
+function getObj(tab, key){
+  return (OBJECTIFS[tab]&&OBJECTIFS[tab][key]) ? OBJECTIFS[tab][key] : 0;
+}
+function setObj(tab, key, val){
+  if(!OBJECTIFS[tab]) OBJECTIFS[tab]={};
+  OBJECTIFS[tab][key] = val;
+  saveObj(OBJECTIFS);
+}
+
+function renderObjectifs(tab, actuals){
+  document.getElementById('objMoisLabel').textContent = MOIS_LABELS[tab]||'';
+  const defs = [
+    {key:'factures', label:'Nbre de factures',   actual: actuals.nb,    fmt: v=>v,              unit:''},
+    {key:'marge',    label:'Marge VO HT',         actual: actuals.marge, fmt: v=>Math.round(v).toLocaleString('fr-FR')+' €', unit:'€'},
+    {key:'decaiss',  label:'Décaissement FI',     actual: actuals.ca,    fmt: v=>Math.round(v).toLocaleString('fr-FR')+' €', unit:'€'},
+    {key:'fi',       label:'Nbre dossiers FI',    actual: actuals.fi,    fmt: v=>v,              unit:''},
+  ];
+
+  document.getElementById('objGrid').innerHTML = defs.map(d=>{
+    const obj = getObj(tab, d.key);
+    const pct = obj>0 ? Math.min(Math.round(d.actual/obj*100),100) : 0;
+    const color = pct>=100?'#28a745':pct>=70?'#fd7e14':'#dc3545';
+    const objDisplay = obj>0 ? (d.unit==='€'?Math.round(obj).toLocaleString('fr-FR')+' €':obj) : '—';
+    return `<div class="obj-item">
+      <div class="obj-label">${d.label}</div>
+      <div class="obj-row">
+        <span class="obj-current">${d.fmt(d.actual)}</span>
+        <span class="obj-sep">/</span>
+        <span class="obj-target" id="obj-disp-${tab}-${d.key}"
+          onclick="editObj('${tab}','${d.key}',${obj||0})"
+          style="font-size:16px;font-weight:600;color:#6e6e73;cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px"
+          title="Cliquer pour modifier">${objDisplay}</span>
+      </div>
+      <div class="obj-bar-bg">
+        <div class="obj-bar-fill" style="width:${pct}%;background:${color}"></div>
+      </div>
+      <div class="obj-pct" style="color:${color}">${obj>0?pct+'% atteint':'Cliquer / pour définir objectif'}</div>
+    </div>`;
+  }).join('');
+}
+
+function editObj(tab, key, currentVal){
+  const span = document.getElementById('obj-disp-'+tab+'-'+key);
+  if(!span) return;
+  const isEuro = key==='marge'||key==='decaiss';
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.min = '0';
+  input.value = currentVal||'';
+  input.placeholder = 'Objectif';
+  input.className = 'obj-input';
+  input.style.width = '110px';
+  input.style.fontSize = '16px';
+  span.replaceWith(input);
+  input.focus();
+  input.select();
+  function confirm(){
+    const val = parseFloat(input.value)||0;
+    setObj(tab, key, val);
+    renderObjectifs(tab, _lastActuals);
+  }
+  input.addEventListener('blur', confirm);
+  input.addEventListener('keydown', e=>{if(e.key==='Enter')confirm(); if(e.key==='Escape'){renderObjectifs(tab,_lastActuals);}});
+}
+
+let _lastActuals = {nb:0, marge:0, ca:0, fi:0};
+
+function updateObjectifsFromPanel(tab, rows, marge_all){
+  currentTab = tab;
+  const t = sumRows(rows);
+  _lastActuals = {
+    nb: t.nb,
+    marge: marge_all !== undefined ? marge_all : t.mv,
+    ca: t.ca,
+    fi: t.fi
+  };
+  renderObjectifs(tab, _lastActuals);
+}
+
+// ─── SAUVEGARDE DONNÉES EXCEL ───
+const DATA_KEY = 'recap_vo_data_2026';
+
+function saveData(){
+  try{
+    const payload = {
+      byMois: D.byMois,
+      att: D.att,
+      detail: D.detail,
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem(DATA_KEY, JSON.stringify(payload));
+    showLastUpdate(payload.savedAt);
+  }catch(e){ console.warn('Sauvegarde impossible:', e); }
+}
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(DATA_KEY);
+    if(!raw) return false;
+    const payload = JSON.parse(raw);
+    if(!payload.byMois) return false;
+    // Reconstituer les clés numériques
+    D.byMois = {};
+    for(const k of Object.keys(payload.byMois)){
+      D.byMois[Number(k)] = payload.byMois[k];
+    }
+    D.att = payload.att || [];
+    D.detail = payload.detail || [];
+    showLastUpdate(payload.savedAt);
+    return true;
+  }catch(e){ return false; }
+}
+
+function showLastUpdate(isoDate){
+  const el = document.getElementById('lastUpdateLabel');
+  if(!el || !isoDate) return;
+  const d = new Date(isoDate);
+  const fmt = d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'})
+            + ' à ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  el.textContent = '💾 Dernière mise à jour : ' + fmt;
+}
+
+function switchTab(el,name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+  if(name==='juin') _currentMoisList=[6];
+  else if(name==='mai') _currentMoisList=[5];
+  else _currentMoisList=[1,2,3,4,5,6];
+  // Mettre à jour les objectifs selon l'onglet
+  if(name==='juin'){
+    const{rows,marge_all}=mergeMonths([6]);
+    updateObjectifsFromPanel('juin',rows,marge_all);
+  } else if(name==='mai'){
+    const{rows,marge_all}=mergeMonths([5]);
+    updateObjectifsFromPanel('mai',rows,marge_all);
+  } else {
+    const{rows,marge_all}=mergeMonths([1,2,3,4,5,6]);
+    updateObjectifsFromPanel('annee',rows,marge_all);
+  }
+}
+
+function parseExcel(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets['VO'];
+      if(!ws){alert('Feuille VO introuvable');return;}
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});
+      let hi=-1;
+      for(let i=0;i<rows.length;i++){if(rows[i].some(c=>c&&String(c).includes('DATE CDE'))){hi=i;break;}}
+      if(hi<0){alert('En-tête non trouvé');return;}
+      const hdr=rows[hi];
+      const ci=n=>hdr.findIndex(h=>h&&String(h).toLowerCase().includes(n.toLowerCase()));
+      const iV=ci('vendeur'),iF=ci('facture'),iM=ci('reelle'),iK=ci('previsionnelle'),iR=ci('remise'),iB=ci('marque'),iC=ci('modele'),iD=ci('immat'),iE=ci('client');
+      const iA=ci('admin'),iCO=ci('coyote'),iFI=ci('fi '),iCA=ci('ca fin'),iAN=ci('annul'),iEU=ci('eurodatacar');
+      const newByMois={},newAtt=[],newDetail=[];
+      for(let i=hi+1;i<rows.length;i++){
+        const r=rows[i];
+        const v=String(r[iV]||'').trim().toUpperCase();
+        if(!v)continue;
+        const an=r[iAN];if(an&&String(an).trim()!='')continue;
+        const hasFact=r[iF]&&String(r[iF]).trim()!='';
+        const marge=parseFloat(String(r[iM]||0).replace(',','.'))||0;
+        const margeK=parseFloat(String(r[iK]||0).replace(',','.'))||0;
+        const remise=parseFloat(String(r[iR]||0).replace(',','.'))||0;
+        const admin=r[iA]==1?1:0,coyote=r[iCO]==1?1:0,fi=r[iFI]==1?1:0,euro=r[iEU]==1?1:0;
+        const ca=fi?parseFloat(String(r[iCA]||0).replace(/[^\d.-]/g,''))||0:0;
+        const isExcluded=EXCLUDE.includes(v);
+        let mo=0;
+        if(hasFact){
+          const df=r[iF];
+          if(typeof df=='number'&&df>0){const d=new Date((df-25569)*86400000);mo=d.getUTCMonth()+1;}
+          else if(df instanceof Date){mo=df.getUTCMonth()+1;}
+          else if(df){mo=parseInt(String(df).split(/[-/]/)[1])||0;}
+        }
+        if(remise>0){
+          newDetail.push({v,mois:mo||null,marque:String(r[iB]||'').trim(),modele:String(r[iC]||'').trim(),immat:String(r[iD]||'').trim(),client:String(r[iE]||'').trim(),remise,marge:hasFact?marge:margeK,fact:!!hasFact});
+        }
+        if(hasFact){
+          if(!mo)continue;
+          if(!newByMois[mo])newByMois[mo]={marge_all:0,rows:{}};
+          newByMois[mo].marge_all+=marge;
+          if(!isExcluded){
+            if(!newByMois[mo].rows[v])newByMois[mo].rows[v]={v,nb:0,mv:0,remise:0,admin:0,coyote:0,fi:0,ca:0,euro:0};
+            const rv=newByMois[mo].rows[v];rv.nb++;rv.mv+=marge;rv.remise+=remise;rv.admin+=admin;rv.coyote+=coyote;rv.fi+=fi;rv.ca+=ca;rv.euro+=euro;
+          }
+        }else if(!isExcluded){
+          // En attente : marge = colonne K (prévisionnelle)
+          let found=newAtt.find(x=>x.v==v);
+          if(!found){found={v,nb:0,mv:0,remise:0,admin:0,coyote:0,fi:0,ca:0,euro:0};newAtt.push(found);}
+          found.nb++;found.mv+=margeK;found.remise+=remise;found.admin+=admin;found.coyote+=coyote;found.fi+=fi;found.ca+=ca;found.euro+=euro;
+        }
+      }
+      D.att=newAtt.sort((a,b)=>a.v.localeCompare(b.v));
+      D.detail=newDetail;
+      D.byMois={};
+      for(const mo of Object.keys(newByMois)){
+        D.byMois[Number(mo)]={marge_all:newByMois[mo].marge_all,rows:Object.values(newByMois[mo].rows).sort((a,b)=>a.v.localeCompare(b.v))};
+      }
+      renderAll();
+      saveData();
+      alert('✅ Données mises à jour et sauvegardées !');
+    }catch(err){alert('Erreur : '+err.message);}
+  };
+  reader.readAsArrayBuffer(file);
+}
+document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])parseExcel(e.target.files[0]);});
+loadData();
+renderAll();
+</script>
+</body>
+</html>
