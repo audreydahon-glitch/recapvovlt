@@ -84,10 +84,7 @@ tr.tot-row td{font-weight:700;background:#f5f5f7}
 <div class="container">
   <div class="header">
     <h1>📊 Récapitulatif Service VO 2026</h1>
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      <span id="lastUpdateLabel" style="font-size:11px;color:#aeaeb2"></span>
-      <label class="upload-btn">⬆ Actualiser (Excel)<input type="file" accept=".xlsx,.xls" id="fileInput"></label>
-    </div>
+    <label class="upload-btn">⬆ Actualiser (Excel)<input type="file" accept=".xlsx,.xls" id="fileInput"></label>
   </div>
   <div class="tabs">
     <div class="tab active" onclick="switchTab(this,'juin')"><span class="tab-dot" style="background:#28a745"></span>Juin — M en cours</div>
@@ -440,7 +437,7 @@ function kpisHtml(t,marge_all,attNb){
     <div class="kpi"><div class="kpi-l">Factures émises</div><div class="kpi-v">${t.nb}</div><div class="kpi-s">vendeurs uniquement</div></div>
     <div class="kpi"><div class="kpi-l">Marge VO HT</div><div class="kpi-v ${marg<0?'neg':''}" style="font-size:16px;white-space:nowrap">${fmtE2(marg)}</div><div class="kpi-s">col. M — toutes lignes</div></div>
     <div class="kpi"><div class="kpi-l">% FI</div><div class="kpi-v">${pfi}</div><div class="kpi-s">${t.fi} dossier${t.fi>1?'s':''}</div></div>
-    <div class="kpi"><div class="kpi-l">Décaissement FI</div><div class="kpi-v">${t.ca>0?fmtE(t.ca):'—'}</div><div class="kpi-s">montant total</div></div>
+    <div class="kpi"><div class="kpi-l">Décaissement FI</div><div class="kpi-v" style="font-size:16px;white-space:nowrap">${t.ca>0?fmtE(t.ca):'—'}</div><div class="kpi-s">montant total</div></div>
     <div class="kpi"><div class="kpi-l">% Admin</div><div class="kpi-v">${padm}</div><div class="kpi-s">${t.admin} frais admin</div></div>
     <div class="kpi"><div class="kpi-l">% Coyote</div><div class="kpi-v">${pco}</div><div class="kpi-s">${t.coyote} coyotes</div></div>
     <div class="kpi"><div class="kpi-l">% Eurodatacar</div><div class="kpi-v">${peu}</div><div class="kpi-s">${t.euro} eurodatacar</div></div>
@@ -574,49 +571,6 @@ function updateObjectifsFromPanel(tab, rows, marge_all){
   renderObjectifs(tab, _lastActuals);
 }
 
-// ─── SAUVEGARDE DONNÉES EXCEL ───
-const DATA_KEY = 'recap_vo_data_2026';
-
-function saveData(){
-  try{
-    const payload = {
-      byMois: D.byMois,
-      att: D.att,
-      detail: D.detail,
-      savedAt: new Date().toISOString()
-    };
-    localStorage.setItem(DATA_KEY, JSON.stringify(payload));
-    showLastUpdate(payload.savedAt);
-  }catch(e){ console.warn('Sauvegarde impossible:', e); }
-}
-
-function loadData(){
-  try{
-    const raw = localStorage.getItem(DATA_KEY);
-    if(!raw) return false;
-    const payload = JSON.parse(raw);
-    if(!payload.byMois) return false;
-    // Reconstituer les clés numériques
-    D.byMois = {};
-    for(const k of Object.keys(payload.byMois)){
-      D.byMois[Number(k)] = payload.byMois[k];
-    }
-    D.att = payload.att || [];
-    D.detail = payload.detail || [];
-    showLastUpdate(payload.savedAt);
-    return true;
-  }catch(e){ return false; }
-}
-
-function showLastUpdate(isoDate){
-  const el = document.getElementById('lastUpdateLabel');
-  if(!el || !isoDate) return;
-  const d = new Date(isoDate);
-  const fmt = d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'})
-            + ' à ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-  el.textContent = '💾 Dernière mise à jour : ' + fmt;
-}
-
 function switchTab(el,name){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -698,14 +652,12 @@ function parseExcel(file){
         D.byMois[Number(mo)]={marge_all:newByMois[mo].marge_all,rows:Object.values(newByMois[mo].rows).sort((a,b)=>a.v.localeCompare(b.v))};
       }
       renderAll();
-      saveData();
-      alert('✅ Données mises à jour et sauvegardées !');
+      alert('✅ Données mises à jour !');
     }catch(err){alert('Erreur : '+err.message);}
   };
   reader.readAsArrayBuffer(file);
 }
 document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])parseExcel(e.target.files[0]);});
-loadData();
 renderAll();
 </script>
 </body>
