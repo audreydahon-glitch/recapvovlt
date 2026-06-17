@@ -3,662 +3,598 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Récapitulatif Service VO 2026</title>
+<title>Mercedes-Benz Villeneuve-Loubet — Tableau de bord</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f7;color:#1d1d1f;min-height:100vh}
-.container{max-width:1200px;margin:0 auto;padding:24px 16px}
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;background:#fff;padding:16px 20px;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.header h1{font-size:17px;font-weight:600;color:#1d1d1f;display:flex;align-items:center;gap:8px}
-.upload-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #d2d2d7;border-radius:10px;background:#fff;color:#1d1d1f;font-size:13px;cursor:pointer;font-weight:500;transition:background .15s}
-.upload-btn:hover{background:#f5f5f7}
-.upload-btn input{display:none}
-.tabs{display:flex;gap:0;background:#fff;border-radius:12px;padding:4px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.08);width:fit-content}
-.tab{padding:8px 20px;font-size:13px;font-weight:500;color:#6e6e73;cursor:pointer;border-radius:9px;transition:all .15s;display:flex;align-items:center;gap:7px}
-.tab:hover{color:#1d1d1f}
-.tab.active{background:#1d1d1f;color:#fff}
-.tab-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.panel{display:none}.panel.active{display:block}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:20px}
-.kpi{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
-.kpi-l{font-size:11px;color:#6e6e73;margin-bottom:4px;font-weight:500}
-.kpi-v{font-size:22px;font-weight:600;color:#1d1d1f;line-height:1.1}
-.kpi-s{font-size:10px;color:#aeaeb2;margin-top:2px}
-.section-label{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#aeaeb2;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.section-label::after{content:'';flex:1;height:1px;background:#e5e5ea}
-.badge-att{background:#e3f0fc;color:#0071e3;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;margin-left:8px}
-.tbl-wrap{background:#fff;border-radius:12px;overflow:auto;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
-table{width:100%;border-collapse:collapse;font-size:12px}
-thead th{background:#f5f5f7;color:#6e6e73;font-weight:600;padding:10px 12px;white-space:nowrap;border-bottom:1px solid #e5e5ea;text-align:right;font-size:11px}
-thead th:first-child{text-align:left}
-td{padding:12px 12px;border-bottom:2px solid #e5e5ea;color:#1d1d1f;text-align:right;white-space:nowrap;font-size:12px}
-td:first-child{text-align:left;font-weight:700;font-size:12px}
-tr:last-child td{border-bottom:none}
-tr.tot-row td{font-weight:700;background:#f5f5f7}
-.pos{color:#28a745}.neg{color:#dc3545}.neut{color:#1d1d1f}
-.pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:600}
-.pill-g{background:#d4edda;color:#155724}
-.pill-w{background:#fff3cd;color:#856404}
-.pill-r{background:#f8d7da;color:#721c24}
-.pill-n{background:#f5f5f7;color:#aeaeb2}
-.note{font-size:10px;color:#aeaeb2;padding:0 4px;margin-top:6px}
-.empty-cell{color:#aeaeb2}
-/* Lien remise cliquable */
-.remise-link{color:#dc3545;font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px;transition:color .15s}
-.remise-link:hover{color:#a71d2a}
-/* Modal */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px}
-.modal-overlay.open{display:flex}
-.modal{background:#fff;border-radius:16px;width:100%;max-width:820px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.25)}
-.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #e5e5ea}
-.modal-title{font-size:15px;font-weight:600;color:#1d1d1f}
-.modal-sub{font-size:12px;color:#6e6e73;margin-top:2px}
-.modal-close{width:30px;height:30px;border-radius:50%;border:none;background:#f5f5f7;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#6e6e73;transition:background .15s}
-.modal-close:hover{background:#e5e5ea}
-.modal-body{overflow:auto;padding:16px 20px}
-.modal-total{display:flex;align-items:center;gap:16px;padding:12px 16px;background:#fff3f3;border-radius:10px;margin-bottom:14px;font-size:13px}
-.modal-total strong{font-size:18px;color:#dc3545}
-.modal table{font-size:12px}
-.modal thead th{font-size:11px}
-.modal td,.modal th{padding:7px 10px}
-/* Objectifs */
-.obj-section{background:#fff;border-radius:14px;padding:16px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.obj-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.obj-header h3{font-size:13px;font-weight:600;color:#1d1d1f}
-.obj-header span{font-size:11px;color:#aeaeb2}
-.obj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
-.obj-item{display:flex;flex-direction:column;gap:6px}
-.obj-label{font-size:11px;font-weight:600;color:#6e6e73;text-transform:uppercase;letter-spacing:.05em}
-.obj-row{display:flex;align-items:center;gap:8px}
-.obj-current{font-size:18px;font-weight:700;color:#1d1d1f}
-.obj-sep{color:#aeaeb2;font-size:14px}
-.obj-input{width:90px;padding:4px 8px;border:1.5px solid #e5e5ea;border-radius:8px;font-size:14px;font-weight:600;text-align:center;font-family:inherit;color:#1d1d1f}
-.obj-input:focus{outline:none;border-color:#0071e3}
-.obj-bar-bg{height:6px;background:#f0f0f0;border-radius:99px;overflow:hidden}
-.obj-bar-fill{height:100%;border-radius:99px;transition:width .4s}
-.obj-pct{font-size:11px;font-weight:600;margin-top:2px}
-@media(max-width:600px){.kpis{grid-template-columns:repeat(2,1fr)}.tab{padding:7px 12px;font-size:12px}}
+body{font-family:'Inter',sans-serif;background:#F2F2F0;color:#1A1A1A;font-size:14px}
+.nav{background:#F0F0EE;padding:0 24px;height:52px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #E5E5E0;position:sticky;top:0;z-index:50}
+.nav-logo{width:32px;height:32px;background:#000;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff}
+.nav-title{font-size:15px;font-weight:600}
+.nav-tab{padding:0 16px;height:52px;display:flex;align-items:center;font-size:13px;font-weight:500;color:#666;border-bottom:2px solid transparent;margin-left:16px}
+.nav-tab.active{color:#1B2D5B;border-bottom-color:#1B2D5B}
+.page{max-width:1400px;margin:0 auto;padding:20px 16px}
+.card{background:#fff;border:1px solid #E5E5E0;border-radius:12px;padding:16px 20px;margin-bottom:14px}
+.annual-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.annual-label h3{font-size:14px;font-weight:600;min-width:140px}
+.annual-label p{font-size:10px;color:#999;margin-top:1px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.chip{display:flex;flex-direction:column;align-items:center;padding:6px 12px;border-radius:9px;background:#F8F8F6;border:1px solid #E5E5E0;min-width:50px}
+.chip.active{background:#1B2D5B;border-color:#1B2D5B}
+.chip-v{font-size:16px;font-weight:700}
+.chip.active .chip-v{color:#fff}
+.chip.red .chip-v{color:#C0392B}
+.chip-l{font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-top:1px}
+.chip.active .chip-l{color:rgba(255,255,255,.7)}
+.anav{display:flex;align-items:center;gap:6px;margin-left:auto}
+.arr{width:26px;height:26px;border-radius:7px;border:1px solid #E5E5E0;background:#fff;cursor:pointer;font-size:14px;color:#666;display:flex;align-items:center;justify-content:center}
+.arr:hover{background:#1B2D5B;color:#fff;border-color:#1B2D5B}
+.mois-lbl{font-size:13px;font-weight:600;min-width:110px;text-align:center}
+.ibtn{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:#fff;border:1px solid #E5E5E0;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;color:#666;font-family:'Inter',sans-serif}
+.ibtn:hover{background:#1B2D5B;color:#fff;border-color:#1B2D5B}
+.sbar{display:flex;align-items:center;justify-content:space-between}
+.sbar h4{font-size:13px;font-weight:600}
+.sbar p{font-size:10px;color:#999;margin-top:1px}
+.sbtn{border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.sbtn.save{background:#1A1A1A;color:#fff}
+.sbtn.reset{background:#FDECEA;color:#C0392B}
+.obj{display:grid;grid-template-columns:190px 1fr 190px;gap:20px;align-items:center}
+.olbl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#999;margin-bottom:6px}
+.oinput{width:74px;padding:7px 9px;border:1.5px solid #E5E5E0;border-radius:8px;font-size:18px;font-weight:700;font-family:'Inter',sans-serif;text-align:center}
+.oinput:focus{outline:none;border-color:#1B2D5B}
+.onums{display:flex;align-items:baseline;gap:5px;margin-bottom:6px}
+.ocur{font-size:26px;font-weight:700;color:#C0392B}
+.osep{font-size:15px;color:#999}
+.otot{font-size:15px;font-weight:500;color:#666}
+.opct{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;margin-left:6px;background:#FDECEA;color:#C0392B}
+.opct.ok{background:#E8F5EE;color:#2D7A4F}
+.pbg{background:#E5E5E0;border-radius:99px;height:7px;overflow:hidden;margin-bottom:6px}
+.pfill{height:100%;border-radius:99px;background:#C0392B;transition:width .5s}
+.pfill.ok{background:#2D7A4F}
+.osub{display:flex;gap:16px;font-size:10px;color:#999}
+.dlbl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-bottom:8px;text-align:center}
+.dgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.ditem{text-align:center}
+.dval{font-size:18px;font-weight:700;color:#1B2D5B}
+.dlbl2{font-size:8px;text-transform:uppercase;letter-spacing:.05em;color:#999;margin-top:1px}
+.stitle{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#999;margin-bottom:10px;margin-top:18px;display:flex;align-items:center;gap:8px}
+.stitle::after{content:'';flex:1;height:1px;background:#E5E5E0}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.vc{background:#fff;border:1px solid #E5E5E0;border-radius:12px;overflow:hidden}
+.vch{display:flex;align-items:center;gap:9px;padding:12px 14px;border-bottom:1px solid #E5E5E0}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.vname{font-size:13px;font-weight:600;cursor:pointer}
+.vname:hover{color:#1B2D5B;text-decoration:underline}
+.vmarge{font-size:10px;color:#999;margin-top:1px}
+.vsg{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#E5E5E0}
+.vs{background:#fff;padding:9px 5px;text-align:center}
+.vsv{font-size:16px;font-weight:700}
+.vsv.pos{color:#2D7A4F}.vsv.red{color:#C0392B}
+.vsl{font-size:7px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#999;margin-top:2px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(75px,1fr));gap:7px}
+.cs{background:#fff;border:1px solid #E5E5E0;border-radius:9px;padding:10px 6px;text-align:center;position:relative;overflow:hidden}
+.cs::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.cs.c0::before{background:#1B2D5B}.cs.c1::before{background:#7C3AED}.cs.c2::before{background:#0891B2}
+.cs.c3::before{background:#059669}.cs.c4::before{background:#DC2626}.cs.c5::before{background:#D97706}
+.cs.c6::before{background:#9333EA}.cs.c7::before{background:#0369A1}.cs.c8::before{background:#B45309}.cs.c9::before{background:#374151}.cs.c10::before{background:#065F46}
+.csv{font-size:18px;font-weight:700}
+.csl{font-size:7px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#999;margin-top:2px}
+.css{font-size:8px;color:#999;margin-top:1px}
+.vsec{margin-bottom:10px;background:#fff;border:1px solid #E5E5E0;border-radius:12px;overflow:hidden}
+.vsh{display:flex;align-items:center;gap:9px;padding:10px 14px;border-bottom:1px solid #E5E5E0}
+.vshst{font-size:11px;color:#999;margin-left:auto;display:flex;gap:10px}
+.badd{background:#1B2D5B;color:#fff;border:none;padding:5px 11px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.vtbl{width:100%;border-collapse:collapse}
+.vtbl th{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#999;padding:8px 14px;text-align:left;background:#F8F8F6;border-bottom:1px solid #E5E5E0}
+.vtbl td{padding:9px 14px;border-bottom:1px solid #E5E5E0;font-size:12px;vertical-align:middle}
+.vtbl tr:last-child td{border-bottom:none}
+.vtbl tr:hover td{background:#FAFAF8}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:5px;background:#059669}
+.dot.p{background:#D97706}
+.mb{display:inline-block;padding:2px 6px;border-radius:5px;font-size:11px;font-weight:600}
+.mbp{background:#E8F5EE;color:#2D7A4F}.mbz{background:#F5F5F0;color:#999}.mbn{background:#FDECEA;color:#C0392B}
+.sv{background:#E8F5EE;color:#2D7A4F;padding:2px 6px;border-radius:5px;font-size:10px}
+.sa{background:#FEF3C7;color:#D97706;padding:2px 6px;border-radius:5px;font-size:10px}
+.sn{color:#999}
+.bmod{background:#F8F8F6;border:1px solid #E5E5E0;padding:3px 9px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif}
+.bmod:hover{background:#1B2D5B;color:#fff;border-color:#1B2D5B}
+.emsg{text-align:center;color:#999;padding:18px;font-size:12px}
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center;padding:16px}
+.ov.open{display:flex}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.mhd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #E5E5E0}
+.mhd h3{font-size:14px;font-weight:700}
+.mx{width:26px;height:26px;border-radius:50%;border:none;background:#F2F2F0;cursor:pointer;font-size:15px;color:#666}
+.mbd{padding:16px 18px}
+.fr{margin-bottom:11px}
+.fr label{display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#666;margin-bottom:3px}
+.fr input,.fr select{width:100%;padding:7px 10px;border:1.5px solid #E5E5E0;border-radius:7px;font-size:13px;font-family:'Inter',sans-serif;color:#1A1A1A}
+.fr input:focus,.fr select:focus{outline:none;border-color:#1B2D5B}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.ckg{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.ck{display:flex;align-items:center;gap:5px;padding:6px 8px;border:1.5px solid #E5E5E0;border-radius:7px;cursor:pointer;font-size:11px;font-weight:500}
+.ck:hover,.ck.on{border-color:#1B2D5B;background:#EEF2FF;color:#1B2D5B}
+.ck input{accent-color:#1B2D5B}
+.mft{padding:11px 18px;border-top:1px solid #E5E5E0;display:flex;gap:7px;justify-content:flex-end}
+.btn{padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif}
+.btnp{background:#1B2D5B;color:#fff}
+.btns{background:#F2F2F0;color:#1A1A1A;border:1px solid #E5E5E0}
+.btnd{background:#FDECEA;color:#C0392B}
+@media(max-width:768px){.obj{grid-template-columns:1fr}.vgrid{grid-template-columns:1fr 1fr}}
+@media(max-width:500px){.vgrid{grid-template-columns:1fr}.ckg{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>📊 Récapitulatif Service VO 2026</h1>
-    <label class="upload-btn">⬆ Actualiser (Excel)<input type="file" accept=".xlsx,.xls" id="fileInput"></label>
-  </div>
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab(this,'juin')"><span class="tab-dot" style="background:#28a745"></span>Juin — M en cours</div>
-    <div class="tab" onclick="switchTab(this,'mai')"><span class="tab-dot" style="background:#fd7e14"></span>Mai — M-1</div>
-    <div class="tab" onclick="switchTab(this,'annee')"><span class="tab-dot" style="background:#0071e3"></span>Année (cumul)</div>
-  </div>
-
-  <!-- OBJECTIFS -->
-  <div class="obj-section">
-    <div class="obj-header">
-      <h3>🎯 Objectifs du mois</h3>
-      <span id="objMoisLabel">Juin 2026</span>
+<nav class="nav">
+  <div class="nav-logo">MB</div>
+  <div class="nav-title">Mercedes-Benz Villeneuve-Loubet — Tableau de bord</div>
+  <div class="nav-tab active">Suivi VO Journalier</div>
+</nav>
+<div class="page">
+  <div class="card annual-bar">
+    <div class="annual-label"><h3>Cumul annuel 2026</h3><p>Toutes activités · 2026</p></div>
+    <div class="chips" id="chips"></div>
+    <div class="anav">
+      <label class="ibtn">⬆ Màj annuel<input type="file" accept=".xlsx,.xls" id="impA" style="display:none"></label>
+      <button class="arr" onclick="chMois(-1)">‹</button>
+      <div class="mois-lbl" id="moisLbl"></div>
+      <button class="arr" onclick="chMois(1)">›</button>
     </div>
-    <div class="obj-grid" id="objGrid"></div>
   </div>
-  <div id="panel-annee" class="panel"></div>
-  <div id="panel-juin" class="panel active"></div>
-  <div id="panel-mai" class="panel"></div>
+  <div class="card sbar">
+    <div><h4>Données suivi VO</h4><p id="sst">Chargement...</p></div>
+    <div style="display:flex;gap:7px">
+      <button class="sbtn reset" onclick="resetAll()">🗑 Réinitialiser</button>
+      <button class="sbtn save" onclick="saveAll()">💾 Sauvegarder</button>
+    </div>
+  </div>
+  <div class="card obj">
+    <div>
+      <div class="olbl">Objectif mensuel</div>
+      <div><input type="number" class="oinput" id="oi" value="50" min="1" onchange="updObj()"><span style="font-size:12px;color:#999;margin-left:5px">véhicules</span></div>
+      <div style="font-size:10px;color:#999;margin-top:5px" id="or">—</div>
+    </div>
+    <div>
+      <div class="onums">
+        <span class="ocur" id="oc">0</span><span class="osep">/</span>
+        <span class="otot" id="ot">50 ventes</span>
+        <span class="opct" id="op">0%</span>
+      </div>
+      <div class="pbg"><div class="pfill" id="pf" style="width:0%"></div></div>
+      <div class="osub">
+        <span>✅ <b id="sr">0</b> réalisées</span>
+        <span>🔴 <b id="sre">0</b> restantes</span>
+        <span>📈 <b id="srt">—</b> vte/jour</span>
+      </div>
+    </div>
+    <div>
+      <div class="dlbl">Jours ouvrés (Lun-Sam)</div>
+      <div class="dgrid">
+        <div class="ditem"><div class="dval" id="de">—</div><div class="dlbl2">Écoulés</div></div>
+        <div class="ditem"><div class="dval" id="dr">—</div><div class="dlbl2">Restants</div></div>
+        <div class="ditem"><div class="dval" id="dt">—</div><div class="dlbl2">Total</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="stitle">Vendeurs — Cliquer le nom pour renommer</div>
+  <div class="vgrid" id="vgrid"></div>
+  <div class="stitle">Cumul mensuel — Toutes équipes</div>
+  <div class="cgrid" id="cgrid"></div>
+  <div class="stitle">
+    Ventes du mois par vendeur
+    <label class="ibtn" style="text-transform:none;letter-spacing:0;font-size:10px">⬆ Importer factures<input type="file" accept=".xlsx,.xls" id="impM" style="display:none"></label>
+  </div>
+  <div id="vsecs"></div>
 </div>
-
-<!-- Modal détail remises -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+<div class="ov" id="ov" onclick="cif(event)">
   <div class="modal">
-    <div class="modal-header">
-      <div>
-        <div class="modal-title" id="modalTitle">Détail des remises</div>
-        <div class="modal-sub" id="modalSub"></div>
+    <div class="mhd"><h3 id="mtit">Ajouter</h3><button class="mx" onclick="cov()">✕</button></div>
+    <div class="mbd">
+      <input type="hidden" id="evi"><input type="hidden" id="eidx">
+      <div class="f2">
+        <div class="fr"><label>Date</label><input type="text" id="fd" placeholder="Lun 2"></div>
+        <div class="fr"><label>Modèle</label><input type="text" id="fm" placeholder="GLC 220 D"></div>
       </div>
-      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+      <div class="f2">
+        <div class="fr"><label>Immat</label><input type="text" id="fi2" placeholder="GN-338-HJ"></div>
+        <div class="fr"><label>Client</label><input type="text" id="fcl" placeholder="Nom client"></div>
+      </div>
+      <div class="fr"><label>Marge (€)</label><input type="number" id="fmg" placeholder="0"></div>
+      <div class="f2">
+        <div class="fr"><label>My Ana</label><select id="fmy"><option value="">—</option><option value="valide">✓ Validé</option><option value="attente">⏳ Attente</option></select></div>
+        <div class="fr"><label>Facturé</label><select id="ffa"><option value="">—</option><option value="oui">Oui</option></select></div>
+      </div>
+      <div class="fr"><label>Options</label>
+        <div class="ckg">
+          <label class="ck"><input type="checkbox" id="xfi"> FI</label>
+          <label class="ck"><input type="checkbox" id="xma"> MAD</label>
+          <label class="ck"><input type="checkbox" id="xbu"> Bulbee</label>
+          <label class="ck"><input type="checkbox" id="xco"> Coyote</label>
+          <label class="ck"><input type="checkbox" id="xpr"> Protech</label>
+          <label class="ck"><input type="checkbox" id="xeu"> Eurodatacar</label>
+          <label class="ck"><input type="checkbox" id="xce"> Cession</label>
+          <label class="ck"><input type="checkbox" id="xre"> Reprise</label>
+          <label class="ck"><input type="checkbox" id="xvo"> VOE</label>
+          <label class="ck"><input type="checkbox" id="xpl"> +120J</label>
+        </div>
+      </div>
     </div>
-    <div class="modal-body">
-      <div class="modal-total">
-        <span>Total remises :</span>
-        <strong id="modalTotal">—</strong>
-        <span id="modalCount" style="color:#6e6e73"></span>
-      </div>
-      <div class="tbl-wrap" style="margin-bottom:0">
-        <table>
-          <thead><tr>
-            <th style="text-align:left">Vendeur</th>
-            <th style="text-align:left">Marque</th>
-            <th style="text-align:left">Modèle</th>
-            <th style="text-align:left">Immat.</th>
-            <th style="text-align:left">Client</th>
-            <th>Mois</th>
-            <th>Remise TTC</th>
-            <th>Marge HT</th>
-          </tr></thead>
-          <tbody id="modalBody"></tbody>
-        </table>
-      </div>
+    <div class="mft">
+      <button class="btn btnd" id="bdel" onclick="delV()" style="display:none;margin-right:auto">Supprimer</button>
+      <button class="btn btns" onclick="cov()">Annuler</button>
+      <button class="btn btnp" onclick="savV()">Enregistrer</button>
     </div>
   </div>
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-const EXCLUDE=['ALCOPA','CESSION','MARCHAND'];
-const MOIS_NOM={1:'Janvier',2:'Février',3:'Mars',4:'Avril',5:'Mai',6:'Juin',7:'Juillet',8:'Août',9:'Septembre',10:'Octobre',11:'Novembre',12:'Décembre'};
+// ── CONFIG ──
+const SB_URL = 'https://mcxkadaorfvphcpcbilc.supabase.co';
+const SB_KEY = 'sb_publishable_U1elRvWbupuQq_xRlKefRg_NShc0vWK';
+const SB_TABLE = 'Commande%20VO';
+const SB_HDR = {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
 
-// Données agrégées par vendeur/mois
-const D = {
-  byMois:{
-    1:{marge_all:130578.53,rows:[
-      {v:'BDC',nb:3,mv:5793,remise:0,admin:0,coyote:0,fi:2,ca:53015,euro:0},
-      {v:'CHAUMONT',nb:12,mv:22711,remise:54483,admin:1,coyote:0,fi:4,ca:188771,euro:0},
-      {v:'DONATO',nb:10,mv:24655,remise:5425,admin:3,coyote:2,fi:1,ca:23802,euro:2},
-      {v:'LE GALLO',nb:6,mv:14470,remise:2721,admin:1,coyote:0,fi:1,ca:25000,euro:0},
-      {v:'MOTTAS',nb:2,mv:9672,remise:942,admin:0,coyote:0,fi:1,ca:8000,euro:0},
-      {v:'SAEZ',nb:14,mv:43156,remise:2487,admin:7,coyote:6,fi:5,ca:141102,euro:0},
-    ]},
-    2:{marge_all:138557.18,rows:[
-      {v:'BDC',nb:2,mv:3419,remise:4229,admin:2,coyote:0,fi:0,ca:0,euro:0},
-      {v:'CHAUMONT',nb:9,mv:24557,remise:694,admin:4,coyote:1,fi:4,ca:145989,euro:0},
-      {v:'DONATO',nb:5,mv:2405,remise:1484,admin:1,coyote:0,fi:0,ca:0,euro:0},
-      {v:'LE GALLO',nb:5,mv:5606,remise:2442,admin:1,coyote:0,fi:1,ca:15000,euro:0},
-      {v:'MOTTAS',nb:5,mv:5365,remise:158,admin:2,coyote:0,fi:3,ca:38085,euro:0},
-      {v:'ROUTARD',nb:13,mv:28761,remise:4250,admin:5,coyote:1,fi:1,ca:16130,euro:1},
-      {v:'SAEZ',nb:11,mv:34324,remise:2416,admin:7,coyote:5,fi:4,ca:81498,euro:3},
-    ]},
-    3:{marge_all:108101.87,rows:[
-      {v:'BDC',nb:2,mv:3233,remise:402,admin:2,coyote:0,fi:0,ca:0,euro:0},
-      {v:'CHAUMONT',nb:10,mv:15974,remise:6694,admin:1,coyote:0,fi:1,ca:26976,euro:0},
-      {v:'DONATO',nb:8,mv:14089,remise:1443,admin:2,coyote:3,fi:4,ca:67435,euro:1},
-      {v:'LE GALLO',nb:9,mv:10236,remise:3113,admin:2,coyote:1,fi:2,ca:43602,euro:0},
-      {v:'MOTTAS',nb:11,mv:23400,remise:0,admin:8,coyote:0,fi:7,ca:190200,euro:0},
-      {v:'ROUTARD',nb:28,mv:34257,remise:6420,admin:6,coyote:3,fi:7,ca:151897,euro:0},
-      {v:'SAEZ',nb:1,mv:3243,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:0},
-    ]},
-    4:{marge_all:119380.02,rows:[
-      {v:'BDC',nb:2,mv:3119,remise:0,admin:0,coyote:0,fi:0,ca:0,euro:1},
-      {v:'CHAUMONT',nb:5,mv:18815,remise:381,admin:3,coyote:0,fi:2,ca:34574,euro:0},
-      {v:'DONATO',nb:13,mv:24546,remise:0,admin:9,coyote:2,fi:5,ca:97391,euro:0},
-      {v:'LE GALLO',nb:8,mv:13072,remise:0,admin:5,coyote:0,fi:2,ca:38397,euro:2},
-      {v:'MOTTAS',nb:6,mv:6608,remise:0,admin:4,coyote:0,fi:3,ca:57017,euro:0},
-      {v:'ROUTARD',nb:19,mv:35912,remise:64,admin:9,coyote:2,fi:8,ca:253304,euro:0},
-      {v:'SAEZ',nb:5,mv:15211,remise:0,admin:3,coyote:5,fi:3,ca:94488,euro:0},
-    ]},
-    5:{marge_all:118047.88,rows:[
-      {v:'BDC',nb:1,mv:2607,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:1},
-      {v:'CHAUMONT',nb:4,mv:6336,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:0},
-      {v:'DONATO',nb:10,mv:46941,remise:0,admin:8,coyote:1,fi:4,ca:175007,euro:0},
-      {v:'LE GALLO',nb:2,mv:2147,remise:0,admin:0,coyote:0,fi:0,ca:0,euro:1},
-      {v:'ROUTARD',nb:15,mv:40294,remise:3094,admin:11,coyote:3,fi:6,ca:102788,euro:0},
-      {v:'SAEZ',nb:7,mv:10698,remise:0,admin:5,coyote:4,fi:1,ca:31819,euro:0},
-    ]},
-    6:{marge_all:6801.07,rows:[
-      {v:'ROUTARD',nb:1,mv:-649,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:0},
-    ]},
-  },
-  att:[
-    {v:'CHAUMONT',nb:4,mv:1715,remise:0,admin:2,coyote:1,fi:2,ca:64984,euro:0},
-    {v:'DIRECTION',nb:1,mv:8000,remise:0,admin:1,coyote:1,fi:0,ca:0,euro:0},
-    {v:'DONATO',nb:1,mv:3078,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:0},
-    {v:'LE GALLO',nb:3,mv:14280,remise:0,admin:3,coyote:1,fi:1,ca:21706,euro:2},
-    {v:'MOTTAS',nb:1,mv:-1800,remise:4074,admin:0,coyote:0,fi:0,ca:0,euro:0},
-    {v:'SAEZ',nb:2,mv:5253,remise:4730,admin:2,coyote:1,fi:0,ca:0,euro:0},
-  ],
-  // Détail ligne par ligne pour les remises (chargé depuis Excel ou précalculé)
-  detail:[]
-};
-
-// Détail précalculé depuis le fichier actuel
-D.detail = [
-  {v:'BDC',mois:2,marque:'MERCEDES',modele:'CLASSE A',immat:'HA-524-PR',client:'GROLLET',remise:492,marge:275.66,fact:true},
-  {v:'BDC',mois:2,marque:'AM',modele:'JEEP',immat:'FG-660-BW',client:'GAUTRON',remise:3736.76,marge:3142.97,fact:true},
-  {v:'BDC',mois:3,marque:'AM',modele:'MINI',immat:'GB-473-QF',client:'REBION',remise:401.66,marge:1674.69,fact:true},
-  {v:'CHAUMONT',mois:1,marque:'MERCEDES',modele:'R604',immat:'HH-614-ZD',client:'PAYTWEAK',remise:52833.76,marge:12139.79,fact:true},
-  {v:'CHAUMONT',mois:1,marque:'MERCEDES',modele:'CLASSE C',immat:'EL-653-ZE',client:'CAPPELAERE',remise:1027.28,marge:1329.26,fact:true},
-  {v:'CHAUMONT',mois:1,marque:'AM',modele:'F2',immat:'FS-105-MW',client:'CRAHAY',remise:622,marge:1678.3,fact:true},
-  {v:'CHAUMONT',mois:2,marque:'MERCEDES',modele:'GLB',immat:'GL-676-TS',client:'HATTON',remise:193.94,marge:2875.93,fact:true},
-  {v:'CHAUMONT',mois:2,marque:'AM',modele:'F2',immat:'GD-315-CQ',client:'GARCIA',remise:500,marge:3155.27,fact:true},
-  {v:'CHAUMONT',mois:3,marque:'MERCEDES',modele:'GLC',immat:'GN-388-JP',client:'GASTRONOME',remise:2795.76,marge:2280.86,fact:true},
-  {v:'CHAUMONT',mois:3,marque:'MERCEDES',modele:'CLE',immat:'HH-391-DL',client:'SOTO',remise:673.76,marge:7486.71,fact:true},
-  {v:'CHAUMONT',mois:3,marque:'MERCEDES',modele:'CLE',immat:'HA-820-BG',client:'AGENCE FRANCAISE',remise:1173.76,marge:3383.29,fact:true},
-  {v:'CHAUMONT',mois:3,marque:'MERCEDES',modele:'CLASSE C',immat:'HD-465-CA',client:'CHEFFAJ',remise:1404.58,marge:2195.04,fact:true},
-  {v:'CHAUMONT',mois:3,marque:'MERCEDES',modele:'GLA',immat:'GD-758-MJ',client:'VIGNONI',remise:161.56,marge:545.37,fact:true},
-  {v:'CHAUMONT',mois:3,marque:'MERCEDES',modele:'CLASSE A',immat:'GE-982-VR',client:'ZOCCO',remise:484.8,marge:1922.97,fact:true},
-  {v:'CHAUMONT',mois:4,marque:'AM',modele:'SMART',immat:'GC-898-NM',client:'RUBER',remise:71,marge:1337.16,fact:true},
-  {v:'CHAUMONT',mois:4,marque:'MERCEDES',modele:'GLE',immat:'GT-940-HT',client:'BOUTEFROY',remise:309.82,marge:8601.21,fact:true},
-  {v:'DONATO',mois:1,marque:'MERCEDES',modele:'EQB',immat:'GH-838-RJ',client:'KLEIN',remise:2790,marge:3124.14,fact:true},
-  {v:'DONATO',mois:1,marque:'MERCEDES',modele:'CLASSE E',immat:'GW-270-KK',client:'VORONOV',remise:2000,marge:1890.19,fact:true},
-  {v:'DONATO',mois:1,marque:'MERCEDES',modele:'CLASSE A',immat:'GD-666-YL',client:'DUFAIT',remise:635,marge:5152.49,fact:true},
-  {v:'DONATO',mois:2,marque:'MERCEDES',modele:'CLASSE A',immat:'HJ-082-JN',client:'MOURTADA',remise:810.76,marge:-1648.66,fact:true},
-  {v:'DONATO',mois:2,marque:'MERCEDES',modele:'GLE 350DE',immat:'GK-772-JH',client:'BERGERON',remise:673,marge:1657.01,fact:true},
-  {v:'DONATO',mois:3,marque:'MERCEDES',modele:'GLA',immat:'FS-672-YJ',client:'BONFIGLIO',remise:898,marge:1614.2,fact:true},
-  {v:'DONATO',mois:3,marque:'MERCEDES',modele:'CLASSE A',immat:'HB-443-YT',client:'CHARBIT',remise:544.76,marge:-436.34,fact:true},
-  {v:'LE GALLO',mois:1,marque:'MERCEDES',modele:'GLA 200',immat:'GS-160-ZA',client:'OKALA',remise:9,marge:4812.35,fact:true},
-  {v:'LE GALLO',mois:1,marque:'MERCEDES',modele:'GLE',immat:'HB-515-ED',client:'BENSOUNA',remise:2639.76,marge:5051.72,fact:true},
-  {v:'LE GALLO',mois:1,marque:'MERCEDES',modele:'CLASSE A',immat:'HB-410-YT',client:'FERNANDEZ',remise:72.4,marge:-251.55,fact:true},
-  {v:'LE GALLO',mois:2,marque:'MERCEDES',modele:'CLS',immat:'DA-418-HB',client:'VISITAYEV',remise:131,marge:500,fact:true},
-  {v:'LE GALLO',mois:2,marque:'AM',modele:'Q2',immat:'GD-970-KM',client:'AUTO SPORT TOULON',remise:1411,marge:3398.67,fact:true},
-  {v:'LE GALLO',mois:2,marque:'MERCEDES',modele:'CLA',immat:'GV-373-ZC',client:'LENOIR',remise:900,marge:0,fact:true},
-  {v:'LE GALLO',mois:3,marque:'MERCEDES',modele:'EQB',immat:'GT-066-JF',client:'BERTHAUD',remise:500,marge:2012.82,fact:true},
-  {v:'LE GALLO',mois:3,marque:'MERCEDES',modele:'GLA',immat:'GW-842-TX',client:'BOISSIERE',remise:112.65,marge:-3450.37,fact:true},
-  {v:'LE GALLO',mois:3,marque:'MERCEDES',modele:'AMG GT',immat:'FJ-539-EB',client:'MARTINS GONCALVES',remise:1500,marge:4313.87,fact:true},
-  {v:'LE GALLO',mois:3,marque:'AM',modele:'AUDI',immat:'HD-272-XD',client:'ROVERA',remise:500,marge:175.31,fact:true},
-  {v:'LE GALLO',mois:3,marque:'AM',modele:'AUDI',immat:'HC-601-EV',client:'ROVERA',remise:500,marge:886.97,fact:true},
-  {v:'MOTTAS',mois:1,marque:'MERCEDES',modele:'CLASSE C',immat:'FR-168-XQ',client:'KIELBASA',remise:941.86,marge:5590.99,fact:true},
-  {v:'MOTTAS',mois:2,marque:'MERCEDES',modele:'GLA 200D',immat:'HJ-039-XS',client:'DELCOURT',remise:158.4,marge:2522.8,fact:true},
-  {v:'MOTTAS',mois:null,marque:'MERCEDES',modele:'SL',immat:'GP-843-VC',client:'BERRIN',remise:4073.76,marge:500,fact:false},
-  {v:'ROUTARD',mois:2,marque:'MERCEDES',modele:'CLASSE A',immat:'HJ-336-JN',client:'POUYLEAU',remise:317,marge:139.79,fact:true},
-  {v:'ROUTARD',mois:2,marque:'MERCEDES',modele:'GLA 200D',immat:'3195MYG',client:'GLM ALPILLES',remise:1000,marge:437.18,fact:true},
-  {v:'ROUTARD',mois:2,marque:'AM',modele:'MG4',immat:'GR-380-EY',client:'OUAQERROUCH',remise:390,marge:707.3,fact:true},
-  {v:'ROUTARD',mois:2,marque:'AM',modele:'ASTRA',immat:'GP-828-FQ',client:'ROSFELDER',remise:522.24,marge:1823.53,fact:true},
-  {v:'ROUTARD',mois:2,marque:'MERCEDES',modele:'CLASSE B',immat:'FT-938-XN',client:'SERGE BORDIN',remise:200.21,marge:3477.51,fact:true},
-  {v:'ROUTARD',mois:2,marque:'MERCEDES',modele:'CLASSE C',immat:'HD-895-PG',client:'JOHN HAIGH',remise:1764.08,marge:3509.25,fact:true},
-  {v:'ROUTARD',mois:2,marque:'MERCEDES',modele:'GLA 250 E',immat:'HD-527-CV',client:'AGOERGES',remise:56.76,marge:3544.56,fact:true},
-  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'EQE',immat:'HB-458-AX',client:'CHUVAEVA',remise:611,marge:346.42,fact:true},
-  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'CLE',immat:'GW-585-NF',client:'ABF SAS',remise:124.76,marge:1265.83,fact:true},
-  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'GLC',immat:'GE-087-QA',client:'AVA LUXURY',remise:340,marge:4018.95,fact:true},
-  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'GLC',immat:'GH-633-BX',client:'DOS SANTOS',remise:138.63,marge:-600.81,fact:true},
-  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'GLA',immat:'HB-033-WE',client:'BOR',remise:7.87,marge:763.54,fact:true},
-  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'GLA',immat:'HA-581-EJ',client:'GAIT',remise:493.76,marge:4234.21,fact:true},
-  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'CLASSE C',immat:'HC-546-AL',client:'KHALOUAOUI',remise:1038.92,marge:-1376.4,fact:true},
-  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'GLA',immat:'3268MYG',client:'ICART',remise:23,marge:2163.17,fact:true},
-  {v:'ROUTARD',mois:3,marque:'AM',modele:'IGNIS',immat:'GR-765-DD',client:'MC EXPORT',remise:800,marge:1166.67,fact:true},
-  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'GLA',immat:'HD-959-YL',client:'MORAINE',remise:48.19,marge:679.75,fact:true},
-  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'CLASSE A',immat:'HJ-626-VC',client:'MATE',remise:385.64,marge:441.23,fact:true},
-  {v:'ROUTARD',mois:3,marque:'AM',modele:'TCROSS',immat:'GJ-377-XX',client:'MATTAS',remise:8.76,marge:227.61,fact:true},
-  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'CLASSE C',immat:'HD-853-QL',client:'SOLY',remise:160.6,marge:681.74,fact:true},
-  {v:'ROUTARD',mois:3,marque:'MERCEDES',modele:'GLA',immat:'HK-464-BF',client:'TREMOLIERE',remise:182.06,marge:-935.32,fact:true},
-  {v:'ROUTARD',mois:3,marque:'AM',modele:'X3',immat:'GK-171-PT',client:'PHAURE',remise:583.76,marge:349.4,fact:true},
-  {v:'ROUTARD',mois:4,marque:'MERCEDES',modele:'CLASSE A',immat:'HB-265-YT',client:'QUIGNON/PALLANCA',remise:63.76,marge:-1215.35,fact:true},
-  {v:'ROUTARD',mois:5,marque:'AM',modele:'POLO',immat:'GT-121-AW',client:'HUBERT',remise:286.59,marge:218.38,fact:true},
-  {v:'ROUTARD',mois:5,marque:'MERCEDES',modele:'CLASSE A',immat:'FY-257-CL',client:'BROQUA',remise:255.58,marge:2931.32,fact:true},
-  {v:'ROUTARD',mois:5,marque:'MERCEDES',modele:'GLC',immat:'GX-260-PR',client:'CAIULO',remise:2551.76,marge:5239.44,fact:true},
-  {v:'SAEZ',mois:1,marque:'MERCEDES',modele:'CLASSE',immat:'DX-439-EE',client:'REYGNIER',remise:900,marge:4449.47,fact:true},
-  {v:'SAEZ',mois:1,marque:'MERCEDES',modele:'GLC 300',immat:'GZ-935-ZK',client:'COURTIGO',remise:538.51,marge:6363.9,fact:true},
-  {v:'SAEZ',mois:1,marque:'AM',modele:'F2',immat:'GK-907-JZ',client:'BG & ASSOCIES',remise:48.51,marge:791.29,fact:true},
-  {v:'SAEZ',mois:1,marque:'MERCEDES',modele:'GLC',immat:'GG-716-CA',client:'SCIMONE',remise:75.49,marge:42.84,fact:true},
-  {v:'SAEZ',mois:1,marque:'MERCEDES',modele:'CLA',immat:'GL-656-BP',client:'SAVOLDELLI',remise:302.46,marge:3418.08,fact:true},
-  {v:'SAEZ',mois:1,marque:'AM',modele:'A1',immat:'GK-090-QT',client:'LARSONNIER',remise:322.84,marge:4963.35,fact:true},
-  {v:'SAEZ',mois:1,marque:'MERCEDES',modele:'GLE',immat:'GH-787-YX',client:'BURDUJA',remise:298.76,marge:6951.63,fact:true},
-  {v:'SAEZ',mois:2,marque:'MERCEDES',modele:'GLA 200D',immat:'GH-248-DZ',client:'CARVALHO DE PINA',remise:153.36,marge:5886.5,fact:true},
-  {v:'SAEZ',mois:2,marque:'AM',modele:'MAZDA3',immat:'GH-114-GQ',client:'PAUL-HAZARD',remise:208.76,marge:1183.7,fact:true},
-  {v:'SAEZ',mois:2,marque:'MERCEDES',modele:'CLASSE C',immat:'GK-805-HY',client:'GRAVA',remise:93.99,marge:3004.7,fact:true},
-  {v:'SAEZ',mois:2,marque:'MERCEDES',modele:'GLC',immat:'FM-692-DD',client:'RADINEZ',remise:1000,marge:4929.86,fact:true},
-  {v:'SAEZ',mois:2,marque:'AM',modele:'X6',immat:'GM-856-CD',client:'REVUZ',remise:959.76,marge:7431.71,fact:true},
-  {v:'SAEZ',mois:null,marque:'MERCEDES',modele:'CLASSE G',immat:'HA-864-AT',client:'PETROV ENERGY',remise:4729.76,marge:500,fact:false},
+const MNOMS=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const VDEF=[
+  {nom:'CHAUMONT',i:'CH',c:'#1B2D5B'},
+  {nom:'DONATO',i:'DO',c:'#2D7A4F'},
+  {nom:'LE GALLO',i:'LG',c:'#7C6A00'},
+  {nom:'SAEZ',i:'SA',c:'#C0392B'},
+  {nom:'ROUTARD',i:'RO',c:'#0891B2'},
 ];
 
-function fmtE(v){const r=Math.round(v);return(r<0?'− ':'')+Math.abs(r).toLocaleString('fr-FR')+' €'}
-function fmtE2(v){return(v<0?'− ':'')+Math.abs(v).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
-function fmtK(v){if(!v||Math.round(v)===0)return'—';const r=Math.round(v/1000);return(r<0?'− ':'')+Math.abs(r).toLocaleString('fr-FR')+' k€'}
-function pct(a,b){return b?Math.round(a/b*100)+'%':'—'}
-function pcFI(p){const v=parseInt(p)||0;return v>=40?'pill pill-g':v>0?'pill pill-r':'pill pill-n'}
-function pcAdmin(p){const v=parseInt(p)||0;return v>=80?'pill pill-g':v>0?'pill pill-r':'pill pill-n'}
-function pcCoyote(p){const v=parseInt(p)||0;return v>=40?'pill pill-g':v>=25?'pill pill-w':v>0?'pill pill-r':'pill pill-n'}
-function pcEuro(p){const v=parseInt(p)||0;return v>=40?'pill pill-g':v>=25?'pill pill-w':v>0?'pill pill-r':'pill pill-n'}
-function pc(p,type){return type==='admin'?pcAdmin(p):type==='coyote'?pcCoyote(p):pcFI(p)}
+// ── DONNÉES EXCEL INTÉGRÉES ──
+const EXCEL = {"CHAUMONT": [{"date": "Jeu 1", "modele": "SWIFT", "immat": "GW-688-PK", "client": "FERAT", "marge": -3066.62, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "GLE", "immat": "GT-723-GC", "client": "ECO RENOV", "marge": -2473.0, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": true, "plus120": false, "ca": 66199.23, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "CLASSE A", "immat": "HA-470-PS", "client": "GABRIELE", "marge": -1017.79, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "R604", "immat": "HH-614-ZD", "client": "PAYTWEAK", "marge": 12139.79, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 100000.0, "mois": 0, "annee": 2026, "moisCde": 11, "anneeCde": 2025}, {"date": "Dim 1", "modele": "CLASSE A", "immat": "FH-715-TT", "client": "PASTORINO", "marge": 3293.86, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 8000.0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLE 350DE", "immat": "GV-654-KP", "client": "ERIC STENWAGA", "marge": 6534.11, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 78067.76, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLC", "immat": "GN-388-JP", "client": "GASTRONOME", "marge": 2280.86, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": true, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLE", "immat": "HH-391-DL", "client": "SOTO", "marge": 7486.71, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA 250E", "immat": "HC-429-TZ", "client": "BOUSSAUD", "marge": -797.53, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": true, "plus120": false, "ca": 36595.24, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "GLA", "immat": "HC-781-BV", "client": "HOCKMEIR", "marge": 645.77, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "CLASSE C", "immat": "EL-653-ZE", "client": "CAPPELAERE", "marge": 1329.26, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 11, "anneeCde": 2025}, {"date": "Jeu 1", "modele": "MODEL  3", "immat": "GB-063-TC", "client": "RANAIVOSOLO", "marge": 1300.94, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "CX30", "immat": "GJ-396-TK", "client": "CULLUYERE", "marge": 1505.83, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "F2", "immat": "FS-105-MW", "client": "CRAHAY", "marge": 1678.3, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 14571.76, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "TESLA", "immat": "GS-720-GL", "client": "SARVARIE", "marge": 2204.8, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "CLASSE C", "immat": "GX-857-BV", "client": "THC HOLDING", "marge": 3239.25, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 8000.0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "CLASSE A", "immat": "FX-311-KV", "client": "OUNAS", "marge": 5224.0, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE A", "immat": "GL-308-BW", "client": "BROVIA", "marge": 780.83, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLC", "immat": "GM-997-GK", "client": "GLOBAL INSURANCE", "marge": 1090.0, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "EQB", "immat": "GX-230-WE", "client": "ROMETTI", "marge": 2340.0, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 23326.0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLB", "immat": "GL-676-TS", "client": "HATTON", "marge": 2875.93, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "F2", "immat": "GD-315-CQ", "client": "GARCIA", "marge": 3155.27, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLE 350DE", "immat": "GG-963-YM", "client": "MACHADO RIBEIRO", "marge": 5284.07, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLE", "immat": "HA-820-BG", "client": "AGENCE FRANCAISE", "marge": 3383.29, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA", "immat": "GX-292-VA", "client": "ALESI", "marge": 18.0, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE C", "immat": "HD-465-CA", "client": "CHEFFAJ", "marge": 2195.04, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "F2", "immat": "FC-072-QK", "client": "LESSATINI", "marge": 550.0, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA", "immat": "HC-736-AL", "client": "PINTEAU", "marge": -2654.04, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE A", "immat": "HB-953-AA", "client": "RAMPON", "marge": 245.33, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": true, "voe": false, "plus120": false, "ca": 26976.26, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA", "immat": "GD-758-MJ", "client": "VIGNONI", "marge": 545.37, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE A", "immat": "GE-982-VR", "client": "ZOCCO", "marge": 1922.97, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE A", "immat": "GV-665-KE", "client": "CALBOCCI", "marge": 1090.0, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 26574.16, "mois": 3, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE A", "immat": "FT-958-GY", "client": "LIEGE", "marge": 3621.82, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "S3", "immat": "EY-781-RK", "client": "RISSO", "marge": 4164.63, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Mer 1", "modele": "SMART", "immat": "GC-898-NM", "client": "RUBER", "marge": 1337.16, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Mer 1", "modele": "GLE", "immat": "GT-940-HT", "client": "BOUTEFROY", "marge": 8601.21, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 8000.0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Ven 1", "modele": "GLA", "immat": "GJ-675-VT", "client": "DESSAGNE", "marge": -260.76, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "GLA", "immat": "HC-744-WH", "client": "SERINET", "marge": 758.75, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": true, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "GLC", "immat": "GZ-513-ZK", "client": "ANGELETTI", "marge": 1695.47, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Ven 1", "modele": "EQA", "immat": "GX-606-VG", "client": "GULBRANDSEN", "marge": 4142.62, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Lun 1", "modele": "GLA 250E", "immat": "HC-617-AL", "client": "GIUGE", "marge": 1456.3, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": true, "plus120": false, "ca": 35796.33, "mois": 5, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Lun 1", "modele": "GLA", "immat": "GT-875-VG", "client": "JAUVAT", "marge": 250.0, "myana": "", "facture": false, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 5, "annee": 2026, "moisCde": 5, "anneeCde": 2026}, {"date": "Lun 1", "modele": "GLA", "immat": "HC-946-SD", "client": "LEGRAND", "marge": 590.44, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": true, "plus120": false, "ca": 29187.86, "mois": 5, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Lun 1", "modele": "GLA", "immat": "HJ-825-MH", "client": "ZARTARIAN", "marge": 427.3, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 5, "annee": 2026, "moisCde": 5, "anneeCde": 2026}, {"date": "Lun 1", "modele": "GLB", "immat": "GJ-465-YY", "client": "ASSOR", "marge": 6189.72, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 5, "annee": 2026, "moisCde": 5, "anneeCde": 2026}, {"date": "Lun 1", "modele": "CLASSE A", "immat": "HD-047-PL", "client": "SEMINARA -KOSINSKI", "marge": 918.0, "myana": "", "facture": false, "fi": true, "mad": false, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 5, "annee": 2026, "moisCde": 5, "anneeCde": 2026}, {"date": "Lun 1", "modele": "CLASSE A", "immat": "GK-002-EF", "client": "MAILLARD", "marge": 1111.0, "myana": "", "facture": false, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 5, "annee": 2026, "moisCde": 5, "anneeCde": 2026}, {"date": "Lun 1", "modele": "EQS", "immat": "HC-984-VX", "client": "TAXI VERGINE", "marge": 1272.83, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 5, "annee": 2026, "moisCde": 3, "anneeCde": 2026}], "DONATO": [{"date": "Dim 1", "modele": "CLASSE A", "immat": "HJ-082-JN", "client": "MOURTADA", "marge": -1648.66, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA 200D", "immat": "GJ-025-EJ", "client": "FONTANILI OLIVIER", "marge": -743.45, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "EQB", "immat": "GH-838-RJ", "client": "KLEIN", "marge": 3124.14, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE A", "immat": "GR-473-SQ", "client": "LE SERT", "marge": 3177.84, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": true, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 18989.25, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE A", "immat": "FM-717-FM", "client": "LEFEVRE", "marge": 3544.53, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE A", "immat": "GC-642-WP", "client": "MARCURAT", "marge": 2023.51, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 16370.76, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "GLA 250", "immat": "FX-937-XA", "client": "DELAET", "marge": -1228.62, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "GLA 250", "immat": "GL-904-JF", "client": "BOULINGUEZ", "marge": 676.99, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "CLASSE A", "immat": "GP-875-EP", "client": "ABADIE -LUQUET", "marge": 1478.72, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "CLA", "immat": "GJ-916-GG", "client": "ROS PLOMBERIE", "marge": 4244.64, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "CLASSE A", "immat": "GG-021-TG", "client": "LUI-HIN TSAN", "marge": 3390.3, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 11, "anneeCde": 2025}, {"date": "Jeu 1", "modele": "CLASSE  E", "immat": "GW-270-KK", "client": "VORONOV", "marge": 1890.19, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "EQE", "immat": "GY-695-TM", "client": "PANTAENIUS", "marge": 2893.81, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": true, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "RANGE", "immat": "GG-698-ZF", "client": "MONVOISIN", "marge": 3032.81, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": true, "cession": false, "reprise": false, "voe": true, "plus120": false, "ca": 23802.3, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "CLASSE A", "immat": "GD-666-YL", "client": "DUFAIT", "marge": 5152.49, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE C", "immat": "GG-374-XW", "client": "CHIAPETTA", "marge": 1332.46, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLE 350DE", "immat": "GK-772-JH", "client": "BERGERON", "marge": 1657.01, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE A", "immat": "GV-059-MF", "client": "COLACCIO", "marge": 1807.59, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA", "immat": "FS-672-YJ", "client": "BONFIGLIO", "marge": 1614.2, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE A", "immat": "HB-443-YT", "client": "CHARBIT", "marge": -436.34, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA", "immat": "HC-796-XV", "client": "IBRA MARKET", "marge": 869.23, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 24062.59, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA", "immat": "GJ-927-RD", "client": "RITZ", "marge": 2761.61, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "KAMIQ", "immat": "GQ-394-MJ", "client": "COULET", "marge": 534.11, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 8012.76, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE A", "immat": "FV-736-NG", "client": "BADAOUI", "marge": 792.8, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 16000.25, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "GLA", "immat": "HC-714-AL", "client": "NJR HOME", "marge": 834.93, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE A  250E", "immat": "HD-643-WR", "client": "MARTINA", "marge": 1806.81, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE A", "immat": "GH-484-TS", "client": "MELCHIORETTO", "marge": 2388.84, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE A", "immat": "HC-362-VR", "client": "PISANI", "marge": 2791.33, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 8329.25, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE A", "immat": "HB-214-YT", "client": "BISTARELLI", "marge": 1296.74, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": true, "ca": 24095.63, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "ARKANA", "immat": "GM-845-BV", "client": "BARTHEYE", "marge": 2480.54, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "GLA", "immat": "GP-469-SJ", "client": "LA SERRE", "marge": 2585.13, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE A", "immat": "GH-056-EB", "client": "DRIZI", "marge": 1397.35, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLA", "immat": "HD-586-RD", "client": "AKAROUID", "marge": 1410.4, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 27254.42, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "GLA", "immat": "208S", "client": "CUTAIA", "marge": 2158.58, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": true, "plus120": false, "ca": 21711.37, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE E", "immat": "GT-951-GA", "client": "RIVIERA PRESTIGE", "marge": 4373.23, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE A", "immat": "HA-476-PP", "client": "MAAZA", "marge": 229.78, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Ven 1", "modele": "CLASSE A", "immat": "HD-071-WH", "client": "DOLCE DRAGO PONZO", "marge": 1327.23, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "EQA", "immat": "GE-707-XQ", "client": "OUERGHI", "marge": 1466.77, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": true, "plus120": false, "ca": 18451.01, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "CLASSE B", "immat": "GQ-827-TG", "client": "PILLE", "marge": 1983.89, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "GLC 300E", "immat": "GS-382-HL", "client": "PORTELLA", "marge": 3511.98, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "TIGUAN", "immat": "HE-202-QQ", "client": "POISSONNET", "marge": 3728.36, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "X4", "immat": "FT-379-BY", "client": "MIRCESCU", "marge": 5382.13, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 23825.76, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "GLB", "immat": "GT-056-GX", "client": "BIRD", "marge": 5311.48, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "CLASSE C", "immat": "GZ-755-SQ", "client": "LEITE", "marge": 5233.89, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 40502.38, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "SERIE 4", "immat": "EP-809-NV", "client": "DRISSI", "marge": 6985.24, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "GLE", "immat": "GZ-426-PG", "client": "LION INDUSTRIE", "marge": 11840.33, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 92228.13, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "GLA", "immat": "GM-617-RZ", "client": "HELAL", "marge": 3078.0, "myana": "", "facture": false, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Lun 1", "modele": "CLASSE A", "immat": "HA-558-FH", "client": "BENAISSA", "marge": 0.0, "myana": "", "facture": false, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 5, "annee": 2026, "moisCde": 5, "anneeCde": 2026}], "LE GALLO": [{"date": "Dim 1", "modele": "CLS", "immat": "DA-418-HB", "client": "VISITAYEV", "marge": 500.0, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA 200D", "immat": "FT-897-JV", "client": "PERRIER", "marge": 1172.78, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "CLASSE A", "immat": "FJ-929-YE", "client": "BELLE", "marge": 170.56, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "GLA 200", "immat": "GS-160-ZA", "client": "OKALA", "marge": 4812.35, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 25000.0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "GLE", "immat": "HB-515-ED", "client": "BENSOUNA", "marge": 5051.72, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Dim 1", "modele": "Q2", "immat": "GD-970-KM", "client": "AUTO SPORT TOULON", "marge": 3398.67, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "RAV 4", "immat": "EH400075", "client": "CALIPPE", "marge": 1093.16, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": true, "plus120": false, "ca": 35602.3, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "2008", "immat": "HF-657-AK", "client": "MATNEY", "marge": 3728.64, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLC", "immat": "GZ-656-ZK", "client": "VARENE", "marge": 1996.1, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 8000.0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "MINI", "immat": "GV-752-LL", "client": "PAUJEMA", "marge": 3106.97, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 11, "anneeCde": 2025}, {"date": "Dim 1", "modele": "CLA", "immat": "GV-373-ZC", "client": "LENOIR", "marge": 0.0, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE A", "immat": "GX-382-MN", "client": "VANBAELINGHEM", "marge": 534.1, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 15000.0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "CLASSE A", "immat": "HB-410-YT", "client": "FERNANDEZ", "marge": -251.55, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "TESLA", "immat": "GR-505-ZS", "client": "GASIGLIA", "marge": 1579.81, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Dim 1", "modele": "EQB", "immat": "GT-066-JF", "client": "BERTHAUD", "marge": 2012.82, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA", "immat": "GW-842-TX", "client": "BOISSIERE", "marge": -3450.37, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": true, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "AMG GT", "immat": "FJ-539-EB", "client": "MARTINS GONCALVES", "marge": 4313.87, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "AUDI", "immat": "HD-272-XD", "client": "ROVERA", "marge": 175.31, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "AUDI", "immat": "HC-601-EV", "client": "ROVERA", "marge": 886.97, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "SERIE 3", "immat": "FT-903-VN", "client": "LAKHCHAI", "marge": -520.88, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 11, "anneeCde": 2025}, {"date": "Mer 1", "modele": "SMART", "immat": "GJ-216-VX", "client": "LA SALVIA", "marge": 1143.83, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE A", "immat": "FH-912-LF", "client": "MARTINS RODRIGUEZ", "marge": 848.46, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Mer 1", "modele": "ARONA", "immat": "6090MSR", "client": "HUMMEL", "marge": 1285.91, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE A", "immat": "HD-847-PG", "client": "VIROLET", "marge": 1740.52, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "GLA 250E", "immat": "GK-330-VB", "client": "BEN NEJMA", "marge": 3245.83, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "GLA", "immat": "GG-183-XN", "client": "S2L", "marge": 1090.0, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 26396.64, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "GLA 250E", "immat": "GW-138-AC", "client": "SPINAZZOLA", "marge": 2679.92, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": true, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 12000.0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE A", "immat": "HA-940-PS", "client": "COSTE", "marge": 1037.99, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": true, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Ven 1", "modele": "GLA", "immat": "GK-709-CC", "client": "YK ARCHITECTURES", "marge": -1963.21, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": true, "coyote": false, "protech": false, "euro": true, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Ven 1", "modele": "CLASSE S", "immat": "HD-382-CA", "client": "WD CONSEILS", "marge": 4110.44, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Lun 1", "modele": "GLA 205E", "immat": "HC-980-SD", "client": "CORREIA", "marge": 3631.88, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": true, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 21706.13, "mois": 5, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "Q2", "immat": "HD-772-MP", "client": "HOWARD", "marge": 3920.0, "myana": "", "facture": false, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": true, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Lun 1", "modele": "CLASSE G", "immat": "GD-939-HM", "client": "MDA", "marge": 6250.0, "myana": "", "facture": false, "fi": false, "mad": true, "bulbee": true, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 5, "annee": 2026, "moisCde": 5, "anneeCde": 2026}], "SAEZ": [{"date": "Jeu 1", "modele": "CLASSE", "immat": "DX-439-EE", "client": "REYGNIER", "marge": 4449.47, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 11, "anneeCde": 2025}, {"date": "Dim 1", "modele": "MG3", "immat": "HE-805-QQ", "client": "PAPPALARDO", "marge": 2185.0, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 12902.0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "218D", "immat": "EQ-816-XK", "client": "LEONARDI", "marge": 2408.57, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": true, "protech": false, "euro": true, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE A", "immat": "HA-914-PQ", "client": "TOSAS F", "marge": 2482.32, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": true, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLA", "immat": "GJ-954-HS", "client": "SEBAH", "marge": 2522.98, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 21104.76, "mois": 1, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "GLA", "immat": "HJ-542-NP", "client": "GARCIA", "marge": 2146.43, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": true, "plus120": true, "ca": 36013.97, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "CLASSE A", "immat": "HA-372-PS", "client": "SAID", "marge": 3732.85, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 13983.76, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "GLC 300", "immat": "GZ-935-ZK", "client": "COURTIGO", "marge": 6363.9, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "GLE", "immat": "GL-478-HT", "client": "HATEM", "marge": 5344.33, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA 200D", "immat": "GH-248-DZ", "client": "CARVALHO DE PINA", "marge": 5886.5, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "F2", "immat": "GK-907-JZ", "client": "BG & ASSOCIES", "marge": 791.29, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 11, "anneeCde": 2025}, {"date": "Dim 1", "modele": "GLA", "immat": "HC-425-FS", "client": "ALFARO", "marge": -278.98, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "MAZDA3", "immat": "GH-114-GQ", "client": "PAUL -HAZARD", "marge": 1183.7, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLA", "immat": "GK-848-QY", "client": "CIARDI", "marge": 2567.51, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE C", "immat": "GK-805-HY", "client": "GRAVA", "marge": 3004.7, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": true, "plus120": false, "ca": 32491.67, "mois": 1, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "GLA  250E", "immat": "GW-856-TX", "client": "DONADEY", "marge": -2201.65, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": true, "plus120": true, "ca": 29166.67, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "GLC", "immat": "GG-716-CA", "client": "SCIMONE", "marge": 42.84, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "GLA 250E", "immat": "HC-612-AL", "client": "COMEBAT", "marge": 1882.84, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "CLASSE A", "immat": "GA-130-WY", "client": "DALL OLIO", "marge": 1926.28, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 7939.76, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "CLASSE E", "immat": "FQ-074-QG", "client": "PLOMBEKO", "marge": 3344.34, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "CLA", "immat": "GL-656-BP", "client": "SAVOLDELLI", "marge": 3418.08, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "A1", "immat": "GK-090-QT", "client": "LARSONNIER", "marge": 4963.35, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Jeu 1", "modele": "GLE", "immat": "GH-787-YX", "client": "BURDUJA", "marge": 6951.63, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 53998.0, "mois": 0, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLC", "immat": "FM-692-DD", "client": "RADINEZ", "marge": 4929.86, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 15000.0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "X6", "immat": "GM-856-CD", "client": "REVUZ", "marge": 7431.71, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": true, "protech": true, "euro": true, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "F2", "immat": "GL-281-DK", "client": "BOUCHOT", "marge": 3242.6, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Mer 1", "modele": "GLA", "immat": "HD-766-DD", "client": "COULOMBEL", "marge": 3473.4, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": true, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": true, "plus120": false, "ca": 31888.13, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLA", "immat": "HC-086-KY", "client": "GATTI", "marge": 1895.86, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 23790.0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "GLA", "immat": "FJ-744-PF", "client": "PRESTAT", "marge": 2805.94, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Mer 1", "modele": "GLE", "immat": "FV-216-LN", "client": "TLS BATIMENT", "marge": 5317.35, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": true, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 38809.76, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE A", "immat": "GT-994-FY", "client": "FETHI", "marge": 1718.56, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Ven 1", "modele": "GLA", "immat": "3239MYG", "client": "THILLET", "marge": -3549.15, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": true, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Ven 1", "modele": "GLA", "immat": "HK-755-ZM", "client": "CESARONI", "marge": -2149.13, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Ven 1", "modele": "CLASSE A A", "immat": "HD-437-CV", "client": "GILBERTE", "marge": 476.91, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "GLC 300E", "immat": "FT-575-MX", "client": "BALTUS", "marge": 2579.71, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 31818.56, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "CLASSE A", "immat": "HF-013-DE", "client": "STRICKLAND", "marge": 3884.8, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "EQA", "immat": "HC-427-AR", "client": "BRIARD", "marge": 4495.95, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "CLASSE C", "immat": "HD-984-ZZ", "client": "GENERALE DE CONSTRUCTION", "marge": 4958.51, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": true, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Lun 1", "modele": "EQB", "immat": "GN-464-NN", "client": "BAZIN", "marge": 750.83, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 5, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE G", "immat": "HA-864-AT", "client": "PETROV ENERGY", "marge": 5000.0, "myana": "", "facture": false, "fi": false, "mad": true, "bulbee": false, "coyote": true, "protech": true, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": true, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Ven 1", "modele": "CLASSE C", "immat": "HD-781-QL", "client": "JUST IN TIMZ", "marge": -2500.0, "myana": "", "facture": false, "fi": false, "mad": true, "bulbee": true, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}], "ROUTARD": [{"date": "Dim 1", "modele": "CLASSE  A", "immat": "HJ-336-JN", "client": "POUYLEAU", "marge": 139.79, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": true, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA 200D", "immat": "3195MYG", "client": "GLM ALPILLES", "marge": 437.18, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "EQA", "immat": "GK-369-DG", "client": "FIDICIARE EXPERTISE", "marge": 2284.77, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA 220D", "immat": "FT-792-BX", "client": "OLIVERO", "marge": 2305.51, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": true, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLA", "immat": "GF-761-MQ", "client": "ABDOUL WAHABI", "marge": 3501.29, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE A", "immat": "HA-864-PR", "client": "BAAILI", "marge": 3685.52, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 38596.76, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "EQE", "immat": "HB-458-AX", "client": "CHUVAEVA", "marge": 346.42, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "MINI", "immat": "GG-859-KF", "client": "ZRIBI", "marge": 2014.59, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 4800.0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE A", "immat": "GH-071-DL", "client": "MORICE", "marge": 222.81, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "MG4", "immat": "GR-380-EY", "client": "OUAQERROUCH", "marge": 707.3, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "ASTRA", "immat": "GP-828-FQ", "client": "ROSFELDER", "marge": 1823.53, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Dim 1", "modele": "F2", "immat": "GR-473-NC", "client": "DRAPERI", "marge": 2829.49, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLC", "immat": "GS-106-AR", "client": "PEYRROS", "marge": 3468.06, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE B", "immat": "FT-938-XN", "client": "SERGE BORDIN", "marge": 3477.51, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 0, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE C", "immat": "HD-895-PG", "client": "JOHN HAIGH", "marge": 3509.25, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": true, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA 250 E", "immat": "HD-527-CV", "client": "AGOERGES", "marge": 3544.56, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "MINI", "immat": "FV-811-VA", "client": "BERTRAND", "marge": 4011.2, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 16129.76, "mois": 1, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLE", "immat": "GW-585-NF", "client": "ABF SAS", "marge": 1265.83, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": true, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLC", "immat": "GE-087-QA", "client": "AVA LUXURY", "marge": 4018.95, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA", "immat": "HC-531-PP", "client": "BOHIN", "marge": 2952.29, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLC", "immat": "GH-633-BX", "client": "DOS SANTOS", "marge": -600.81, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": true, "plus120": true, "ca": 32166.67, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA", "immat": "HB-033-WE", "client": "BOR", "marge": 763.54, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA", "immat": "HA-581-EJ", "client": "GAIT", "marge": 4234.21, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE C", "immat": "EY-064-SB", "client": "GOSIO", "marge": 1622.35, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 18600.0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "FIAT", "immat": "GJ-390-QP", "client": "CHOKKO", "marge": -998.23, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": true, "plus120": false, "ca": 12653.13, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE C", "immat": "HC-546-AL", "client": "KHALOUAOUI", "marge": -1376.4, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA", "immat": "GD-874-JQ", "client": "COUTIN", "marge": 287.0, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLC", "immat": "GW-557-PV", "client": "DUBELCCO", "marge": 1737.5, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA", "immat": "3268MYG", "client": "ICART", "marge": 2163.17, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE A", "immat": "ES-450-GM", "client": "LEO", "marge": 973.32, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": true, "voe": false, "plus120": false, "ca": 18234.46, "mois": 2, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "IGNIS", "immat": "GR-765-DD", "client": "MC EXPORT", "marge": 1166.67, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA", "immat": "HD-959-YL", "client": "MORAINE", "marge": 679.75, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE  A", "immat": "HJ-626-VC", "client": "MATE", "marge": 441.23, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "TCROSS", "immat": "GJ-377-XX", "client": "MATTAS", "marge": 227.61, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "F2", "immat": "GD-206-LJ", "client": "SCIARRA", "marge": 631.88, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE C", "immat": "HD-853-QL", "client": "SOLY", "marge": 681.74, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "YARIS", "immat": "GL-920-SH", "client": "MC EXPORT", "marge": 750.0, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "GLA", "immat": "HK-464-BF", "client": "TREMOLIERE", "marge": -935.32, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": true, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "X3", "immat": "GK-171-PT", "client": "PHAURE", "marge": 349.4, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 1, "anneeCde": 2026}, {"date": "Dim 1", "modele": "A3", "immat": "HE-841-NM", "client": "TAIB", "marge": 1243.0, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Dim 1", "modele": "CLASSE C", "immat": "GY-684-TM", "client": "TRIQUENAUX", "marge": 2430.0, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": true, "plus120": false, "ca": 26845.63, "mois": 2, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE A", "immat": "HB-265-YT", "client": "QUIGNON /PALLANCA", "marge": -1215.35, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Mer 1", "modele": "GLA", "immat": "HD-568-CV", "client": "SARDA", "marge": 563.39, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "GLA", "immat": "HC-162-BB", "client": "BATTISTONI", "marge": 1777.35, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "Q2", "immat": "HL-048-EE", "client": "JOUANIN", "marge": 698.88, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 18495.5, "mois": 3, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Mer 1", "modele": "PEUGEOT", "immat": "HK-398-SX", "client": "BUI", "marge": 1560.56, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 14880.9, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE A", "immat": "HA-617-PS", "client": "DNIDENE", "marge": 232.07, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 28904.0, "mois": 3, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE A", "immat": "FY-102-AL", "client": "RAINAUD", "marge": 1393.69, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "YARIS", "immat": "GM-158-ES", "client": "MC EXPORT", "marge": 750.0, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "RAV 4", "immat": "EH96022", "client": "ROSFELDER", "marge": 1250.0, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Mer 1", "modele": "FIAT 500", "immat": "HK-896-QE", "client": "MANUGUERRA", "marge": 1299.5, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 17585.76, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "GLE", "immat": "GB-252-NH", "client": "ZENOU", "marge": 2241.12, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "GLC", "immat": "FS-980-EN", "client": "AHMETOVIC", "marge": 3937.17, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 8000.0, "mois": 3, "annee": 2026, "moisCde": 2, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CLASSE A", "immat": "FV-424-FQ", "client": "LASPERGES", "marge": 1074.52, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "GLC", "immat": "GS-159-QG", "client": "MEYER", "marge": 2365.0, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "GLA", "immat": "GV-813-KC", "client": "LAURENT", "marge": 2739.22, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "CAYENNE", "immat": "GK-858-VJ", "client": "SARL ROC", "marge": 9935.38, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 78537.76, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "TESLA", "immat": "GV-956-DA", "client": "MEYNIER", "marge": 2024.8, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 30900.0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "GLE", "immat": "672Y", "client": "ORIENTALYS NEGOCE", "marge": 2534.87, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 56000.0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Mer 1", "modele": "YARIS", "immat": "GN-360-ZY", "client": "MC EXPORT", "marge": 750.0, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 3, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Ven 1", "modele": "GLC", "immat": "GG-476-RB", "client": "JAMA", "marge": 20.0, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 3523.76, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "POLO", "immat": "GT-121-AW", "client": "HUBERT", "marge": 218.38, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "C3", "immat": "GP-756-HF", "client": "HASSEN", "marge": 859.96, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "JEEP", "immat": "GD-816-LB", "client": "DUTRIAUX", "marge": 1151.47, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "GLC", "immat": "GF-666-EA", "client": "CAIULO", "marge": 1065.61, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": false, "voe": false, "plus120": false, "ca": 8809.0, "mois": 4, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Ven 1", "modele": "CORSA", "immat": "GG-997-GM", "client": "BERNARD", "marge": 1359.94, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": true, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "F2", "immat": "GH-698-PA", "client": "MARTIN", "marge": 1806.34, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "F2", "immat": "GE-866-YV", "client": "VON FURSTENBERG", "marge": 2849.71, "myana": "", "facture": true, "fi": false, "mad": false, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "CLASSE A", "immat": "FY-257-CL", "client": "BROQUA", "marge": 2931.32, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "CLA", "immat": "HD-575-RD", "client": "SARL AD ASTRA", "marge": 3089.54, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": true, "plus120": false, "ca": 31778.48, "mois": 4, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Ven 1", "modele": "GLC", "immat": "GX-638-AA", "client": "QUIGNON", "marge": 4052.93, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": true, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "EQB", "immat": "GX-463-TG", "client": "BOUSEKHSEKH", "marge": 4423.14, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 19900.0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "GLC", "immat": "GX-260-PR", "client": "CAIULO", "marge": 5239.44, "myana": "", "facture": true, "fi": true, "mad": false, "bulbee": true, "coyote": true, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": true, "ca": 8000.0, "mois": 4, "annee": 2026, "moisCde": 3, "anneeCde": 2026}, {"date": "Ven 1", "modele": "CLASSE C", "immat": "HB-335-CS", "client": "STOJANOSKI", "marge": 5554.31, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Ven 1", "modele": "GLB", "immat": "GT-042-GX", "client": "VIGNACOURT", "marge": 6237.06, "myana": "", "facture": true, "fi": true, "mad": true, "bulbee": true, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": true, "plus120": false, "ca": 30776.43, "mois": 4, "annee": 2026, "moisCde": 4, "anneeCde": 2026}, {"date": "Lun 1", "modele": "CLASSE A", "immat": "HD-741-HF", "client": "GINER", "marge": -648.95, "myana": "", "facture": true, "fi": false, "mad": true, "bulbee": false, "coyote": false, "protech": false, "euro": false, "cession": false, "reprise": false, "voe": false, "plus120": false, "ca": 0, "mois": 5, "annee": 2026, "moisCde": 4, "anneeCde": 2026}]};
 
-function mergeMonths(moisList){
-  const byV={};let marge_all=0;
-  for(const m of moisList){
-    const md=D.byMois[m];if(!md)continue;
-    marge_all+=md.marge_all;
-    for(const r of md.rows){
-      if(!byV[r.v])byV[r.v]={v:r.v,nb:0,mv:0,remise:0,admin:0,coyote:0,fi:0,ca:0,euro:0};
-      byV[r.v].nb+=r.nb;byV[r.v].mv+=r.mv;byV[r.v].remise+=r.remise;
-      byV[r.v].admin+=r.admin;byV[r.v].coyote+=r.coyote;byV[r.v].fi+=r.fi;byV[r.v].ca+=r.ca;byV[r.v].euro+=(r.euro||0);
+// ── ÉTAT ──
+let S = {obj:50, mois:5, annee:2026, vendeurs:VDEF.map(v=>({...v,ventes:[...EXCEL[v.nom]||[]]}))};
+
+// ── SUPABASE ──
+async function sbLoad(){
+  try{
+    const r = await fetch(`${SB_URL}/rest/v1/${SB_TABLE}?select=*&order=id`,{headers:SB_HDR});
+    if(!r.ok){console.error('Load error:',r.status);return false;}
+    const rows = await r.json();
+    if(!rows||rows.length===0) return false;
+    // Reconstruire S depuis les lignes
+    const cfg = rows.find(r=>r.vendeur==='__CFG__');
+    if(cfg){S.obj=parseInt(cfg.modele)||50;S.mois=parseInt(cfg.immat)||5;S.annee=parseInt(cfg.client)||2026;}
+    S.vendeurs = VDEF.map(v=>({
+      ...v,
+      ventes: rows.filter(r=>r.vendeur===v.nom).map(r=>({
+        date:r.date||'',modele:r.modele||'',immat:r.immat||'',client:r.client||'',
+        marge:parseFloat(r.marge)||0,myana:r.myana||'',facture:r.facture===true||r.facture==='true',
+        fi:r.fi===true||r.fi==='true',mad:r.mad===true||r.mad==='true',bulbee:r.bulbee===true||r.bulbee==='true',coyote:r.coyote===true||r.coyote==='true',
+        protech:r.protech===true||r.protech==='true',euro:r.euro===true||r.euro==='true',cession:r.cession===true||r.cession==='true',
+        reprise:r.reprise===true||r.reprise==='true',voe:r.voe===true||r.voe==='true',plus120:r.plus120===true||r.plus120==='true',ca:parseFloat(r.ca)||0,
+        mois:parseInt(r.mois)||0,annee:parseInt(r.annee)||2026,
+        moisCde:parseInt(r.mois_cde)>=0?parseInt(r.mois_cde):parseInt(r.mois)||0,
+        anneeCde:parseInt(r.annee_cde)||parseInt(r.annee)||2026,
+      }))
+    }));
+    return true;
+  }catch(e){console.error('sbLoad exception:',e);return false;}
+}
+
+async function sbSave(){
+  try{
+    // Supprimer
+    await fetch(`${SB_URL}/rest/v1/${SB_TABLE}?id=gte.0`,{method:'DELETE',headers:SB_HDR});
+    // Construire les lignes
+    const rows = [];
+    for(const v of S.vendeurs){
+      for(const vt of v.ventes){
+        rows.push({
+          vendeur:v.nom,date:vt.date||'',modele:vt.modele||'',immat:vt.immat||'',
+          client:vt.client||'',marge:vt.marge||0,myana:vt.myana||'',
+          facture:!!vt.facture,fi:!!vt.fi,mad:!!vt.mad,bulbee:!!vt.bulbee,
+          coyote:!!vt.coyote,protech:!!vt.protech,euro:!!vt.euro,cession:!!vt.cession,
+          reprise:!!vt.reprise,voe:!!vt.voe,plus120:!!vt.plus120,ca:vt.ca||0,
+          mois:vt.mois||0,annee:vt.annee||2026,mois_cde:vt.moisCde||vt.mois||0,
+          annee_cde:vt.anneeCde||vt.annee||2026,
+        });
+      }
     }
-  }
-  return{rows:Object.values(byV).sort((a,b)=>a.v.localeCompare(b.v)),marge_all};
-}
-function sumRows(rows){return rows.reduce((t,r)=>{t.nb+=r.nb;t.mv+=r.mv;t.remise+=r.remise;t.admin+=r.admin;t.coyote+=r.coyote;t.fi+=r.fi;t.ca+=r.ca;t.euro+=(r.euro||0);return t},{nb:0,mv:0,remise:0,admin:0,coyote:0,fi:0,ca:0,euro:0})}
-
-// Modal remise
-function openRemise(vendeur, moisList, attente){
-  if(typeof moisList==='string'&&moisList!=='all'&&moisList!=='att'){
-    try{moisList=JSON.parse(moisList);}catch(e){moisList=[];}
-  }
-  if(moisList==='att') attente=true;
-  let lines;
-  if(attente){
-    lines=D.detail.filter(d=>d.v===vendeur&&!d.fact&&d.remise>0);
-  } else if(moisList==='all'){
-    lines=D.detail.filter(d=>d.v===vendeur&&d.fact&&d.remise>0);
-  } else {
-    lines=D.detail.filter(d=>d.v===vendeur&&d.fact&&d.remise>0&&moisList.map(Number).includes(Number(d.mois)));
-  }
-  if(!lines.length){alert('Aucun détail disponible pour ces remises.');return;}
-  lines.sort((a,b)=>(b.remise-a.remise));
-  const total=lines.reduce((s,l)=>s+l.remise,0);
-  document.getElementById('modalTitle').textContent='Détail remises — '+vendeur;
-  const periode=attente?'En attente':moisList==='all'?'Année 2026':moisList.map(m=>MOIS_NOM[m]).join(', ');
-  document.getElementById('modalSub').textContent=periode;
-  document.getElementById('modalTotal').textContent=fmtE2(total);
-  document.getElementById('modalCount').textContent=lines.length+' véhicule'+(lines.length>1?'s':'');
-  document.getElementById('modalBody').innerHTML=lines.map(l=>`<tr>
-    <td style="text-align:left">${l.marque||'—'}</td>
-    <td style="text-align:left">${l.modele||'—'}</td>
-    <td style="text-align:left;font-family:monospace;font-size:11px">${l.immat||'—'}</td>
-    <td style="text-align:left">${l.client||'—'}</td>
-    <td>${l.mois?MOIS_NOM[l.mois].substring(0,3):'Att.'}</td>
-    <td class="neg" style="font-weight:600">${fmtE2(l.remise)}</td>
-    <td class="${l.marge<0?'neg':'pos'}">${fmtE2(l.marge)}</td>
-  </tr>`).join('');
-  document.getElementById('modalOverlay').classList.add('open');
-}
-function closeModal(e){if(e.target===document.getElementById('modalOverlay'))closeModalDirect();}
-function closeModalDirect(){document.getElementById('modalOverlay').classList.remove('open');}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModalDirect();});
-
-// Détail remises global (depuis KPI) — tous vendeurs du panel actif
-let _currentMoisList = [6]; // Juin est l'onglet par défaut
-function openRemisesGlobal(){
-  const lines = D.detail.filter(d=>d.remise>0&&d.fact&&_currentMoisList.map(Number).includes(Number(d.mois)));
-  if(!lines.length){alert('Aucune remise pour cette période.');return;}
-  lines.sort((a,b)=>b.remise-a.remise);
-  const total = lines.reduce((s,l)=>s+l.remise,0);
-  document.getElementById('modalTitle').textContent = 'Détail des remises — Tous vendeurs';
-  document.getElementById('modalSub').textContent = lines.length+' véhicule'+(lines.length>1?'s':'');
-  document.getElementById('modalTotal').textContent = fmtE2(total);
-  document.getElementById('modalCount').textContent = '';
-  document.getElementById('modalBody').innerHTML = lines.map(l=>`<tr>
-    <td style="text-align:left;font-weight:600">${l.v||'—'}</td>
-    <td style="text-align:left">${l.marque||'—'}</td>
-    <td style="text-align:left">${l.modele||'—'}</td>
-    <td style="text-align:left;font-family:monospace;font-size:11px">${l.immat||'—'}</td>
-    <td style="text-align:left">${l.client||'—'}</td>
-    <td>${l.mois?MOIS_NOM[l.mois].substring(0,3):'Att.'}</td>
-    <td class="neg" style="font-weight:600">${fmtE2(l.remise)}</td>
-    <td class="${l.marge<0?'neg':'pos'}">${fmtE2(l.marge)}</td>
-  </tr>`).join('');
-  document.getElementById('modalOverlay').classList.add('open');
+    // Config
+    rows.push({vendeur:'__CFG__',modele:String(S.obj),immat:String(S.mois),client:String(S.annee),
+      marge:0,myana:'',facture:false,fi:false,mad:false,bulbee:false,coyote:false,protech:false,
+      euro:false,cession:false,reprise:false,voe:false,plus120:false,ca:0,
+      mois:S.mois,annee:S.annee,mois_cde:S.mois,annee_cde:S.annee});
+    // Insérer par lots
+    for(let i=0;i<rows.length;i+=100){
+      const r = await fetch(`${SB_URL}/rest/v1/${SB_TABLE}`,{
+        method:'POST',headers:{...SB_HDR,'Prefer':'return=minimal'},
+        body:JSON.stringify(rows.slice(i,i+100))
+      });
+      if(!r.ok){const t=await r.text();console.error('Insert error:',r.status,t);}
+    }
+    return true;
+  }catch(e){console.error('sbSave exception:',e);return false;}
 }
 
-const HDR=`<thead><tr>
-  <th style="text-align:left">Vendeur</th>
-  <th>Nbre fact.</th><th>Marge VO HT</th>
-  <th>Nbre FI</th><th>% FI</th><th>Décaiss. FI</th>
-  <th>Nbre Admin</th><th>% Admin</th>
-  <th>Nbre Coyote</th><th>% Coyote</th>
-  <th>Nbre Euro</th><th>% Euro</th>
-  <th>Remises TTC</th>
-</tr></thead>`;
-
-// Registre des remises cliquables
-const _remiseRegistry = {};
-let _remiseIdx = 0;
-
-function remiseCell(r, moisList, attente){
-  if(!r.remise||r.remise===0) return '<span class="empty-cell">—</span>';
-  const key = 'r' + (_remiseIdx++);
-  _remiseRegistry[key] = {vendeur: r.v, moisList, attente};
-  return `<span class="remise-link" onclick="handleRemise('${key}')">${fmtE(r.remise)}</span>`;
-}
-function handleRemise(key){
-  const d = _remiseRegistry[key];
-  if(!d) return;
-  openRemise(d.vendeur, d.moisList, d.attente);
+async function saveAll(){
+  document.getElementById('sst').textContent='Sauvegarde...';
+  const ok = await sbSave();
+  document.getElementById('sst').textContent = ok
+    ? 'Sauvegardé le '+new Date().toLocaleTimeString('fr-FR')
+    : '⚠️ Erreur de sauvegarde';
 }
 
-function tblRows(rows,marge_all_total,showMargeVend,moisList,attente){
-  if(!rows||!rows.length)return'<tr><td colspan="13" style="text-align:center;color:#aeaeb2;padding:20px">Aucune donnée</td></tr>';
-  let h='';
-  for(const r of rows){
-    const pfi=pct(r.fi,r.nb),padm=pct(r.admin,r.nb),pco=pct(r.coyote,r.nb),peu=pct(r.euro||0,r.nb);
-    const marg=showMargeVend?fmtE2(r.mv):'—';
-    h+=`<tr>
-      <td>${r.v}</td><td>${r.nb}</td>
-      <td class="neut">${marg}</td>
-      <td>${r.fi||'<span class="empty-cell">—</span>'}</td><td><span class="${pcFI(pfi)}">${pfi}</span></td><td>${r.ca>0?fmtE(r.ca):'—'}</td>
-      <td>${r.admin||'<span class="empty-cell">—</span>'}</td><td><span class="${pcAdmin(padm)}">${padm}</span></td>
-      <td>${r.coyote||'<span class="empty-cell">—</span>'}</td><td><span class="${pcCoyote(pco)}">${pco}</span></td>
-      <td>${(r.euro||0)||'<span class="empty-cell">—</span>'}</td><td><span class="${pcEuro(peu)}">${peu}</span></td>
-      <td>${remiseCell(r,moisList,attente)}</td>
-    </tr>`;
-  }
-  const t=sumRows(rows);
-  const pfi=pct(t.fi,t.nb),padm=pct(t.admin,t.nb),pco=pct(t.coyote,t.nb),peu=pct(t.euro,t.nb);
-  const totalMarge=marge_all_total!==undefined?marge_all_total:t.mv;
-  h+=`<tr class="tot-row">
-    <td>TOTAL</td><td>${t.nb}</td>
-    <td class="neut">${fmtE2(totalMarge)}</td>
-    <td>${t.fi}</td><td><span class="${pcFI(pfi)}">${pfi}</span></td><td>${t.ca>0?fmtE(t.ca):'—'}</td>
-    <td>${t.admin}</td><td><span class="${pcAdmin(padm)}">${padm}</span></td>
-    <td>${t.coyote}</td><td><span class="${pcCoyote(pco)}">${pco}</span></td>
-    <td>${t.euro}</td><td><span class="${pcEuro(peu)}">${peu}</span></td>
-    <td class="${t.remise>0?'neg':'empty-cell'}">${t.remise>0?fmtE(t.remise):'—'}</td>
-  </tr>`;
-  return h;
+async function resetAll(){
+  if(!confirm('Réinitialiser depuis les données Excel ?')) return;
+  S.vendeurs = VDEF.map(v=>({...v,ventes:[...EXCEL[v.nom]||[]]}));
+  S.obj=50;S.mois=5;S.annee=2026;
+  render();
+  await saveAll();
 }
 
-function kpisHtml(t,marge_all,attNb){
-  const pfi=pct(t.fi,t.nb),padm=pct(t.admin,t.nb),pco=pct(t.coyote,t.nb),peu=pct(t.euro,t.nb);
-  const marg=marge_all!==undefined?marge_all:t.mv;
-  return`
-    <div class="kpi"><div class="kpi-l">Factures émises</div><div class="kpi-v">${t.nb}</div><div class="kpi-s">vendeurs uniquement</div></div>
-    <div class="kpi"><div class="kpi-l">Marge VO HT</div><div class="kpi-v ${marg<0?'neg':''}" style="font-size:16px;white-space:nowrap">${fmtE2(marg)}</div><div class="kpi-s">col. M — toutes lignes</div></div>
-    <div class="kpi"><div class="kpi-l">% FI</div><div class="kpi-v">${pfi}</div><div class="kpi-s">${t.fi} dossier${t.fi>1?'s':''}</div></div>
-    <div class="kpi"><div class="kpi-l">Décaissement FI</div><div class="kpi-v" style="font-size:16px;white-space:nowrap">${t.ca>0?fmtE(t.ca):'—'}</div><div class="kpi-s">montant total</div></div>
-    <div class="kpi"><div class="kpi-l">% Admin</div><div class="kpi-v">${padm}</div><div class="kpi-s">${t.admin} frais admin</div></div>
-    <div class="kpi"><div class="kpi-l">% Coyote</div><div class="kpi-v">${pco}</div><div class="kpi-s">${t.coyote} coyotes</div></div>
-    <div class="kpi"><div class="kpi-l">% Eurodatacar</div><div class="kpi-v">${peu}</div><div class="kpi-s">${t.euro} eurodatacar</div></div>
-    <div class="kpi" style="cursor:pointer" onclick="openRemisesGlobal()"><div class="kpi-l">Remises TTC</div><div class="kpi-v ${t.remise>0?'neg':''}">${t.remise>0?fmtE(t.remise):'—'}</div><div class="kpi-s">🔍 cliquer pour détail</div></div>
-    ${attNb!==undefined?`<div class="kpi"><div class="kpi-l">En attente</div><div class="kpi-v" style="color:#fd7e14">${attNb}</div><div class="kpi-s">non facturés</div></div>`:''}`;
+// ── UTILITAIRES ──
+function fE(v){if(!v||v===0)return'0€';const r=Math.round(v);return(r<0?'−':'')+Math.abs(r).toLocaleString('fr-FR')+'€'}
+function joOuv(an,mo){const dim=new Date(an,mo+1,0).getDate(),today=new Date();let tot=0,ec=0;for(let i=1;i<=dim;i++){const j=new Date(an,mo,i).getDay();if(j!==0){tot++;if(new Date(an,mo,i)<=today)ec++;}}return{tot,ec,re:tot-ec};}
+function vFact(){return S.vendeurs.flatMap(v=>v.ventes.filter(x=>x.facture===true&&parseInt(x.mois)===S.mois&&parseInt(x.annee)===S.annee));}
+function vCde(){return S.vendeurs.flatMap(v=>v.ventes.filter(x=>parseInt(x.moisCde??x.mois)===S.mois&&parseInt(x.anneeCde??x.annee)===S.annee));}
+function vCdeV(vi){return S.vendeurs[vi].ventes.filter(x=>parseInt(x.moisCde??x.mois)===S.mois&&parseInt(x.anneeCde??x.annee)===S.annee);}
+
+// ── RENDER ──
+function rAnnual(){
+  const t=S.vendeurs.flatMap(v=>v.ventes).filter(x=>x.facture);
+  const g=k=>t.filter(x=>x[k]).length;
+  document.getElementById('chips').innerHTML=[
+    {v:t.length,l:'VENTES',a:true},{v:g('fi'),l:'FI'},{v:g('mad'),l:'MAD'},
+    {v:g('coyote'),l:'COYOTE'},{v:g('protech'),l:'PROTECH'},{v:g('bulbee'),l:'BULBEE'},
+    {v:g('euro'),l:'EURODATA'},{v:g('reprise'),l:'REPRISES'},{v:g('cession'),l:'CESSION'},
+    {v:g('voe'),l:'VOE'},{v:S.vendeurs.flatMap(v=>v.ventes).filter(x=>x.plus120).length,l:'+120J',r:true},
+  ].map(c=>`<div class="chip${c.a?' active':''}${c.r?' red':''}"><div class="chip-v">${c.v}</div><div class="chip-l">${c.l}</div></div>`).join('');
+  document.getElementById('moisLbl').textContent=MNOMS[S.mois]+' '+S.annee;
 }
 
-function renderSimple(panelId,moisList){
-  const{rows,marge_all}=mergeMonths(moisList);
-  const t=sumRows(rows);
-  const ml=moisList==='all'?'all':moisList;
-  document.getElementById(panelId).innerHTML=`
-    <div class="kpis">${kpisHtml(t,marge_all,undefined)}</div>
-    <div class="section-label">✅ Factures émises</div>
-    <div class="tbl-wrap"><table>${HDR}<tbody>${tblRows(rows,marge_all,true,ml,false)}</tbody></table></div>
-    <p class="note">* Nbre factures = vendeurs uniquement (hors ALCOPA, CESSION, MARCHAND). Marge = colonne M toutes lignes. Cliquez sur un montant de remise pour voir le détail.</p>`;
+function updObj(){S.obj=parseInt(document.getElementById('oi').value)||1;rProg();}
+function rProg(){
+  const vm=vFact(),nb=vm.length,obj=S.obj,pct=obj?Math.min(Math.round(nb/obj*100),100):0,ok=nb>=obj;
+  const jo=joOuv(S.annee,S.mois);
+  document.getElementById('oi').value=obj;
+  document.getElementById('oc').textContent=nb;
+  document.getElementById('ot').textContent=obj+' ventes';
+  document.getElementById('op').textContent=pct+'%';
+  document.getElementById('op').className='opct'+(ok?' ok':'');
+  document.getElementById('pf').style.width=pct+'%';
+  document.getElementById('pf').className='pfill'+(ok?' ok':'');
+  document.getElementById('sr').textContent=nb;
+  document.getElementById('sre').textContent=Math.max(0,obj-nb);
+  document.getElementById('de').textContent=jo.ec;
+  document.getElementById('dr').textContent=jo.re;
+  document.getElementById('dt').textContent=jo.tot;
+  document.getElementById('or').textContent=(jo.ec?Math.round(nb/jo.ec*100)/100:'—')+' vte/jour';
+  document.getElementById('srt').textContent=(jo.re&&(obj-nb)>0?Math.round((obj-nb)/jo.re*100)/100:'—');
 }
 
-function renderJuin(){
-  const att=D.att;
-  const tAtt=sumRows(att);
-  const{rows,marge_all}=mergeMonths([6]);
-  const t=sumRows(rows);
-  document.getElementById('panel-juin').innerHTML=`
-    <div class="kpis">${kpisHtml(t,marge_all,tAtt.nb)}</div>
-    <div class="section-label" style="color:#1d1d1f">🕐 Commandes en attente<span class="badge-att">${tAtt.nb} dossier${tAtt.nb>1?'s':''}</span></div>
-    <div class="tbl-wrap"><table>${HDR}<tbody>${tblRows(att,undefined,true,null,true)}</tbody></table></div>
-    <p class="note">* En attente = toutes commandes sans date de facture. Cliquez sur un montant de remise pour voir le détail.</p>`;
-}
-
-function renderAll(){
-  Object.keys(_remiseRegistry).forEach(k => delete _remiseRegistry[k]);
-  _remiseIdx = 0;
-  renderSimple('panel-annee',[1,2,3,4,5,6]);
-  renderJuin();
-  renderSimple('panel-mai',[5]);
-  // Initialiser objectifs sur Juin par défaut
-  const{rows,marge_all}=mergeMonths([6]);
-  updateObjectifsFromPanel('juin',rows,marge_all);
-}
-
-// ─── OBJECTIFS ───
-const MOIS_LABELS = {juin:'Juin 2026', mai:'Mai 2026', annee:'Année 2026'};
-let currentTab = 'juin';
-
-// Charger objectifs depuis localStorage
-function loadObj(){
-  try{ return JSON.parse(localStorage.getItem('recap_vo_obj')||'null')||{}; }
-  catch(e){ return {}; }
-}
-function saveObj(obj){ localStorage.setItem('recap_vo_obj', JSON.stringify(obj)); }
-
-let OBJECTIFS = loadObj();
-
-function getObj(tab, key){
-  return (OBJECTIFS[tab]&&OBJECTIFS[tab][key]) ? OBJECTIFS[tab][key] : 0;
-}
-function setObj(tab, key, val){
-  if(!OBJECTIFS[tab]) OBJECTIFS[tab]={};
-  OBJECTIFS[tab][key] = val;
-  saveObj(OBJECTIFS);
-}
-
-function renderObjectifs(tab, actuals){
-  document.getElementById('objMoisLabel').textContent = MOIS_LABELS[tab]||'';
-  const defs = [
-    {key:'factures', label:'Nbre de factures',   actual: actuals.nb,    fmt: v=>v,              unit:''},
-    {key:'marge',    label:'Marge VO HT',         actual: actuals.marge, fmt: v=>Math.round(v).toLocaleString('fr-FR')+' €', unit:'€'},
-    {key:'decaiss',  label:'Décaissement FI',     actual: actuals.ca,    fmt: v=>Math.round(v).toLocaleString('fr-FR')+' €', unit:'€'},
-    {key:'fi',       label:'Nbre dossiers FI',    actual: actuals.fi,    fmt: v=>v,              unit:''},
-  ];
-
-  document.getElementById('objGrid').innerHTML = defs.map(d=>{
-    const obj = getObj(tab, d.key);
-    const pct = obj>0 ? Math.min(Math.round(d.actual/obj*100),100) : 0;
-    const color = pct>=100?'#28a745':pct>=70?'#fd7e14':'#dc3545';
-    const objDisplay = obj>0 ? (d.unit==='€'?Math.round(obj).toLocaleString('fr-FR')+' €':obj) : '—';
-    return `<div class="obj-item">
-      <div class="obj-label">${d.label}</div>
-      <div class="obj-row">
-        <span class="obj-current">${d.fmt(d.actual)}</span>
-        <span class="obj-sep">/</span>
-        <span class="obj-target" id="obj-disp-${tab}-${d.key}"
-          onclick="editObj('${tab}','${d.key}',${obj||0})"
-          style="font-size:16px;font-weight:600;color:#6e6e73;cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px"
-          title="Cliquer pour modifier">${objDisplay}</span>
-      </div>
-      <div class="obj-bar-bg">
-        <div class="obj-bar-fill" style="width:${pct}%;background:${color}"></div>
-      </div>
-      <div class="obj-pct" style="color:${color}">${obj>0?pct+'% atteint':'Cliquer / pour définir objectif'}</div>
-    </div>`;
+function rCards(){
+  document.getElementById('vgrid').innerHTML=S.vendeurs.map((v,i)=>{
+    const vm=vCdeV(i),mg=vm.reduce((s,x)=>s+(x.marge||0),0),nb=vm.length,g=k=>vm.filter(x=>x[k]).length;
+    return`<div class="vc"><div class="vch"><div class="av" style="background:${v.c}">${v.i}</div><div><div class="vname" onclick="renV(${i})">${v.nom}</div><div class="vmarge">${fE(mg)} marge</div></div></div>
+    <div class="vsg">
+      <div class="vs"><div class="vsv${nb>0?' pos':''}">${nb}</div><div class="vsl">VENTES</div></div>
+      <div class="vs"><div class="vsv">${g('fi')}</div><div class="vsl">FI</div></div>
+      <div class="vs"><div class="vsv">${g('mad')}</div><div class="vsl">MAD</div></div>
+      <div class="vs"><div class="vsv">${g('coyote')}</div><div class="vsl">COYOTE</div></div>
+      <div class="vs"><div class="vsv">${g('protech')}</div><div class="vsl">PROTECH</div></div>
+      <div class="vs"><div class="vsv">${g('bulbee')}</div><div class="vsl">BULBEE</div></div>
+      <div class="vs"><div class="vsv">${g('euro')}</div><div class="vsl">EURODATA</div></div>
+      <div class="vs"><div class="vsv">${g('cession')}</div><div class="vsl">CESSION</div></div>
+      <div class="vs"><div class="vsv">${g('reprise')}</div><div class="vsl">REPRISES</div></div>
+      <div class="vs"><div class="vsv">${g('voe')}</div><div class="vsl">VOE</div></div>
+      <div class="vs"><div class="vsv${g('plus120')>0?' red':''}">${g('plus120')}</div><div class="vsl">+120J</div></div>
+    </div></div>`;
   }).join('');
 }
 
-function editObj(tab, key, currentVal){
-  const span = document.getElementById('obj-disp-'+tab+'-'+key);
-  if(!span) return;
-  const isEuro = key==='marge'||key==='decaiss';
-  const input = document.createElement('input');
-  input.type = 'number';
-  input.min = '0';
-  input.value = currentVal||'';
-  input.placeholder = 'Objectif';
-  input.className = 'obj-input';
-  input.style.width = '110px';
-  input.style.fontSize = '16px';
-  span.replaceWith(input);
-  input.focus();
-  input.select();
-  function confirm(){
-    const val = parseFloat(input.value)||0;
-    setObj(tab, key, val);
-    renderObjectifs(tab, _lastActuals);
-  }
-  input.addEventListener('blur', confirm);
-  input.addEventListener('keydown', e=>{if(e.key==='Enter')confirm(); if(e.key==='Escape'){renderObjectifs(tab,_lastActuals);}});
+function rCumul(){
+  const vm=vCde(),g=k=>vm.filter(x=>x[k]).length;
+  const ca=vm.filter(x=>x.fi&&x.facture).reduce((s,x)=>s+(x.ca||0),0);
+  document.getElementById('cgrid').innerHTML=[
+    {v:vm.length,l:'VENTES'},{v:vm.filter(x=>x.myana==='valide').length,l:'MY ANA OK'},
+    {v:g('mad'),l:'MAD'},{v:g('fi'),l:'FI'},
+    {v:ca>0?Math.round(ca).toLocaleString('fr-FR')+' €':'—',l:'DÉCAISS. FI',sm:true},
+    {v:g('coyote'),l:'COYOTE'},{v:g('protech'),l:'PROTECH'},{v:g('bulbee'),l:'BULBEE'},
+    {v:g('cession'),l:'CESSION'},{v:g('voe'),l:'VOE'},{v:g('plus120'),l:'+120J'},
+  ].map((it,i)=>`<div class="cs c${i}"><div class="csv" style="${it.sm?'font-size:12px;':''}">${it.v}</div><div class="csl">${it.l}</div><div class="css">ce mois</div></div>`).join('');
 }
 
-let _lastActuals = {nb:0, marge:0, ca:0, fi:0};
+function rVentes(){
+  document.getElementById('vsecs').innerHTML=S.vendeurs.map((v,vi)=>{
+    const vm=vCdeV(vi),mg=vm.reduce((s,x)=>s+(x.marge||0),0);
+    const rows=vm.map(vt=>{
+      const gi=S.vendeurs[vi].ventes.indexOf(vt);
+      const mb=!vt.marge||vt.marge===0?`<span class="mb mbz">0€</span>`:vt.marge<0?`<span class="mb mbn">${fE(vt.marge)}</span>`:`<span class="mb mbp">${fE(vt.marge)}</span>`;
+      const my=vt.myana==='valide'?'<span class="sv">✓ Validé</span>':vt.myana==='attente'?'<span class="sa">⏳ Attente</span>':'<span class="sn">—</span>';
+      return`<tr><td><span class="dot${vt.facture?'':' p'}"></span>${vt.date||'—'}</td><td><b>${vt.modele||'—'}</b></td><td style="font-family:monospace;font-size:10px;color:#999">${vt.immat||'—'}</td><td>${vt.client||'—'}</td><td>${mb}</td><td>${my}</td><td>${vt.facture?'<span class="sv">Oui</span>':'<span class="sn">—</span>'}</td><td><button class="bmod" onclick="oEdit(${vi},${gi})">Modifier</button></td></tr>`;
+    }).join('');
+    return`<div class="vsec"><div class="vsh"><div class="av" style="background:${v.c};width:28px;height:28px;font-size:10px">${v.i}</div><b style="font-size:13px">${v.nom}</b><div class="vshst"><span>${fE(mg)}</span><span>${vm.length} véh.</span></div><button class="badd" onclick="oAdd(${vi})">+ Ajouter</button></div>${vm.length?`<table class="vtbl"><thead><tr><th>DATE</th><th>MODÈLE</th><th>IMMAT</th><th>CLIENT</th><th>MARGE</th><th>MY ANA</th><th>FACTURÉ</th><th></th></tr></thead><tbody>${rows}</tbody></table>`:'<div class="emsg">Aucune vente ce mois</div>'}</div>`;
+  }).join('');
+}
 
-function updateObjectifsFromPanel(tab, rows, marge_all){
-  currentTab = tab;
-  const t = sumRows(rows);
-  _lastActuals = {
-    nb: t.nb,
-    marge: marge_all !== undefined ? marge_all : t.mv,
-    ca: t.ca,
-    fi: t.fi
+function renV(vi){const n=prompt('Nouveau nom :',S.vendeurs[vi].nom);if(n&&n.trim()){S.vendeurs[vi].nom=n.trim().toUpperCase();S.vendeurs[vi].i=n.trim().toUpperCase().split(' ').map(w=>w[0]).join('').slice(0,2);render();}}
+function chMois(d){S.mois+=d;if(S.mois<0){S.mois=11;S.annee--;}if(S.mois>11){S.mois=0;S.annee++;}render();}
+
+// ── MODAL ──
+function rmModal(){
+  ['fd','fm','fi2','fcl','fmg'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fmy').value='';document.getElementById('ffa').value='';
+  document.getElementById('eidx').value='';document.getElementById('bdel').style.display='none';
+  document.querySelectorAll('.ck input').forEach(cb=>{cb.checked=false;cb.closest('.ck').classList.remove('on');});
+}
+function sc(id,v){const el=document.getElementById(id);el.checked=!!v;el.closest('.ck').classList.toggle('on',!!v);}
+function oAdd(vi){rmModal();document.getElementById('evi').value=vi;document.getElementById('mtit').textContent='Ajouter — '+S.vendeurs[vi].nom;document.getElementById('ov').classList.add('open');}
+function oEdit(vi,idx){
+  rmModal();const vt=S.vendeurs[vi].ventes[idx];
+  document.getElementById('evi').value=vi;document.getElementById('eidx').value=idx;
+  document.getElementById('mtit').textContent='Modifier — '+S.vendeurs[vi].nom;
+  document.getElementById('fd').value=vt.date||'';document.getElementById('fm').value=vt.modele||'';
+  document.getElementById('fi2').value=vt.immat||'';document.getElementById('fcl').value=vt.client||'';
+  document.getElementById('fmg').value=vt.marge||'';document.getElementById('fmy').value=vt.myana||'';
+  document.getElementById('ffa').value=vt.facture?'oui':'';
+  sc('xfi',vt.fi);sc('xma',vt.mad);sc('xbu',vt.bulbee);sc('xco',vt.coyote);sc('xpr',vt.protech);
+  sc('xeu',vt.euro);sc('xce',vt.cession);sc('xre',vt.reprise);sc('xvo',vt.voe);sc('xpl',vt.plus120);
+  document.getElementById('bdel').style.display='block';
+  document.getElementById('ov').classList.add('open');
+}
+
+async function savV(){
+  const vi=parseInt(document.getElementById('evi').value);
+  const obj={
+    date:document.getElementById('fd').value.trim(),modele:document.getElementById('fm').value.trim(),
+    immat:document.getElementById('fi2').value.trim().toUpperCase(),client:document.getElementById('fcl').value.trim(),
+    marge:parseFloat(document.getElementById('fmg').value)||0,myana:document.getElementById('fmy').value,
+    facture:document.getElementById('ffa').value==='oui',
+    fi:document.getElementById('xfi').checked,mad:document.getElementById('xma').checked,
+    bulbee:document.getElementById('xbu').checked,coyote:document.getElementById('xco').checked,
+    protech:document.getElementById('xpr').checked,euro:document.getElementById('xeu').checked,
+    cession:document.getElementById('xce').checked,reprise:document.getElementById('xre').checked,
+    voe:document.getElementById('xvo').checked,plus120:document.getElementById('xpl').checked,
+    ca:0,mois:S.mois,annee:S.annee,moisCde:S.mois,anneeCde:S.annee,
   };
-  renderObjectifs(tab, _lastActuals);
+  const idx=document.getElementById('eidx').value;
+  if(idx!=='')S.vendeurs[vi].ventes[parseInt(idx)]=obj;
+  else S.vendeurs[vi].ventes.push(obj);
+  cov();render();
+  await saveAll();
 }
 
-function switchTab(el,name){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('panel-'+name).classList.add('active');
-  if(name==='juin') _currentMoisList=[6];
-  else if(name==='mai') _currentMoisList=[5];
-  else _currentMoisList=[1,2,3,4,5,6];
-  // Mettre à jour les objectifs selon l'onglet
-  if(name==='juin'){
-    const{rows,marge_all}=mergeMonths([6]);
-    updateObjectifsFromPanel('juin',rows,marge_all);
-  } else if(name==='mai'){
-    const{rows,marge_all}=mergeMonths([5]);
-    updateObjectifsFromPanel('mai',rows,marge_all);
-  } else {
-    const{rows,marge_all}=mergeMonths([1,2,3,4,5,6]);
-    updateObjectifsFromPanel('annee',rows,marge_all);
-  }
+async function delV(){
+  if(!confirm('Supprimer ?'))return;
+  const vi=parseInt(document.getElementById('evi').value);
+  const idx=parseInt(document.getElementById('eidx').value);
+  S.vendeurs[vi].ventes.splice(idx,1);cov();render();
+  await saveAll();
 }
 
-function parseExcel(file){
+function cov(){document.getElementById('ov').classList.remove('open');}
+function cif(e){if(e.target.id==='ov')cov();}
+document.querySelectorAll('.ck input').forEach(cb=>cb.addEventListener('change',()=>cb.closest('.ck').classList.toggle('on',cb.checked)));
+
+// ── IMPORT EXCEL ──
+function importXL(file, moisCible){
   const reader=new FileReader();
-  reader.onload=e=>{
+  reader.onload=async e=>{
     try{
-      const wb=XLSX.read(e.target.result,{type:'array'});
-      const ws=wb.Sheets['VO'];
+      const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
+      const ws=wb.Sheets[wb.SheetNames.find(n=>n.trim().toUpperCase()==='VO')||wb.SheetNames[0]];
       if(!ws){alert('Feuille VO introuvable');return;}
       const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});
+      const rowsRaw=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
+      console.log('Total lignes (cellDates):',rows.length,'Total lignes (raw):',rowsRaw.length);
       let hi=-1;
-      for(let i=0;i<rows.length;i++){if(rows[i].some(c=>c&&String(c).includes('DATE CDE'))){hi=i;break;}}
+      for(let i=0;i<rows.length;i++){if(rows[i]&&rows[i].some(c=>c&&String(c).includes('DATE CDE'))){hi=i;break;}}
       if(hi<0){alert('En-tête non trouvé');return;}
       const hdr=rows[hi];
-      const ci=n=>hdr.findIndex(h=>h&&String(h).toLowerCase().includes(n.toLowerCase()));
-      const iV=ci('vendeur'),iF=ci('facture'),iM=ci('reelle'),iK=ci('previsionnelle'),iR=ci('remise'),iB=ci('marque'),iC=ci('modele'),iD=ci('immat'),iE=ci('client');
-      const iA=ci('admin'),iCO=ci('coyote'),iFI=ci('fi '),iCA=ci('ca fin'),iAN=ci('annul'),iEU=ci('eurodatacar');
-      const newByMois={},newAtt=[],newDetail=[];
+      const ci=n=>hdr.findIndex(h=>h&&String(h).toUpperCase().includes(n.toUpperCase()));
+      const iV=ci('VENDEUR'),iF=ci('DATE DE FACTURE'),iM=ci('MARGE REELLE'),iMo=ci('MODELE');
+      const iIm=ci('IMMAT'),iCl=ci('CLIENT'),iG=ci('CESSION'),iAd=ci('FRAIS ADMIN');
+      const iCo=ci('COYOTE'),iFI=ci('FI '),iAN=ci('ANNULATION'),iCA=ci('CA FIN');
+      const iEu=ci('EURODATACAR'),iBu=ci('BULB'),iPr=ci('PROTECH'),iLo=ci('LOA'),iRe=ci('REPRISE'),iJ=ci('NBRE JOUR');
+      console.log('Colonnes:',{iV,iF,iM,iMo,iIm,hi});
+      // Test sur les 5 premières lignes
+      for(let t=hi+1;t<Math.min(hi+5,rows.length);t++){
+        const r=rows[t];
+        if(!r)continue;
+        console.log(`Ligne ${t}: vendeur=${r[iV]}, dateF=${r[iF]}, type=${typeof r[iF]}, annul=${r[iAN]}`);
+      }
+      const VNOMS=S.vendeurs.map(v=>v.nom);
+      let totalJuin=0,totalJuinRaw=0;
       for(let i=hi+1;i<rows.length;i++){
-        const r=rows[i];
-        const v=String(r[iV]||'').trim().toUpperCase();
-        if(!v)continue;
-        const an=r[iAN];if(an&&String(an).trim()!='')continue;
-        const hasFact=r[iF]&&String(r[iF]).trim()!='';
-        const marge=parseFloat(String(r[iM]||0).replace(',','.'))||0;
-        const margeK=parseFloat(String(r[iK]||0).replace(',','.'))||0;
-        const remise=parseFloat(String(r[iR]||0).replace(',','.'))||0;
-        const admin=r[iA]==1?1:0,coyote=r[iCO]==1?1:0,fi=r[iFI]==1?1:0,euro=r[iEU]==1?1:0;
-        const ca=fi?parseFloat(String(r[iCA]||0).replace(/[^\d.-]/g,''))||0:0;
-        const isExcluded=EXCLUDE.includes(v);
-        let mo=0;
-        if(hasFact){
-          const df=r[iF];
-          if(typeof df=='number'&&df>0){const d=new Date((df-25569)*86400000);mo=d.getUTCMonth()+1;}
-          else if(df instanceof Date){mo=df.getUTCMonth()+1;}
-          else if(df){mo=parseInt(String(df).split(/[-/]/)[1])||0;}
-        }
-        if(remise>0){
-          newDetail.push({v,mois:mo||null,marque:String(r[iB]||'').trim(),modele:String(r[iC]||'').trim(),immat:String(r[iD]||'').trim(),client:String(r[iE]||'').trim(),remise,marge:hasFact?marge:margeK,fact:!!hasFact});
-        }
-        if(hasFact){
-          if(!mo)continue;
-          if(!newByMois[mo])newByMois[mo]={marge_all:0,rows:{}};
-          newByMois[mo].marge_all+=marge;
-          if(!isExcluded){
-            if(!newByMois[mo].rows[v])newByMois[mo].rows[v]={v,nb:0,mv:0,remise:0,admin:0,coyote:0,fi:0,ca:0,euro:0};
-            const rv=newByMois[mo].rows[v];rv.nb++;rv.mv+=marge;rv.remise+=remise;rv.admin+=admin;rv.coyote+=coyote;rv.fi+=fi;rv.ca+=ca;rv.euro+=euro;
-          }
-        }else if(!isExcluded){
-          // En attente : marge = colonne K (prévisionnelle)
-          let found=newAtt.find(x=>x.v==v);
-          if(!found){found={v,nb:0,mv:0,remise:0,admin:0,coyote:0,fi:0,ca:0,euro:0};newAtt.push(found);}
-          found.nb++;found.mv+=margeK;found.remise+=remise;found.admin+=admin;found.coyote+=coyote;found.fi+=fi;found.ca+=ca;found.euro+=euro;
+        const rr=rows[i];if(!rr)continue;
+        if(rr[iF] instanceof Date && rr[iF].getMonth()===5) totalJuin++;
+        const rrR = rowsRaw[i];
+        if(rrR && typeof rrR[iF]==='number'){
+          const d=new Date(Date.UTC(1899,11,30));
+          d.setUTCDate(d.getUTCDate()+Math.floor(rrR[iF]));
+          if(d.getUTCMonth()===5) totalJuinRaw++;
         }
       }
-      D.att=newAtt.sort((a,b)=>a.v.localeCompare(b.v));
-      D.detail=newDetail;
-      D.byMois={};
-      for(const mo of Object.keys(newByMois)){
-        D.byMois[Number(mo)]={marge_all:newByMois[mo].marge_all,rows:Object.values(newByMois[mo].rows).sort((a,b)=>a.v.localeCompare(b.v))};
+      console.log('TOTAL lignes avec dateF en juin (cellDates):', totalJuin, '| (raw):', totalJuinRaw);
+      // Supprimer les facturées existantes si import mensuel
+      if(moisCible!==null){
+        for(const v of S.vendeurs) v.ventes=v.ventes.filter(x=>!(x.facture&&x.mois===moisCible&&x.annee===S.annee));
+      } else {
+        for(const v of S.vendeurs) v.ventes=v.ventes.filter(x=>!x.facture);
       }
-      renderAll();
-      alert('✅ Données mises à jour !');
-    }catch(err){alert('Erreur : '+err.message);}
+      const existants=new Set(S.vendeurs.flatMap(v=>v.ventes.map(x=>x.immat)));
+      let nb=0;
+      for(let i=hi+1;i<rows.length;i++){
+        const r=rows[i];if(!r)continue;
+        const vnom=String(r[iV]||'').trim().toUpperCase();
+        if(!vnom||!VNOMS.includes(vnom))continue;
+        if(r[iAN]&&String(r[iAN]).trim()!=='')continue;
+        const dfRaw = rowsRaw[i] ? rowsRaw[i][iF] : null;
+        const df=r[iF];if(!df && (dfRaw===null||dfRaw===undefined||dfRaw===''))continue;
+        let mois=null,annee=null,dateStr='';
+        if(typeof dfRaw==='number'){
+          const d=new Date(Date.UTC(1899,11,30));
+          d.setUTCDate(d.getUTCDate()+Math.floor(dfRaw));
+          mois=d.getUTCMonth();annee=d.getUTCFullYear();
+          const jn=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+          dateStr=jn[d.getUTCDay()]+' '+d.getUTCDate();
+        } else if(df instanceof Date){
+          mois=df.getMonth();annee=df.getFullYear();
+          const jn=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+          dateStr=jn[df.getDay()]+' '+df.getDate();
+        } else if(typeof df==='string'){
+          const m=df.match(/(\d{4})-(\d{2})-(\d{2})/);
+          if(m){mois=parseInt(m[2])-1;annee=parseInt(m[1]);dateStr=m[3]+'/'+m[2];}
+        } else if(typeof df==='number'){
+          const d=new Date(Date.UTC(1899,11,30));
+          d.setUTCDate(d.getUTCDate()+Math.floor(df));
+          mois=d.getUTCMonth();annee=d.getUTCFullYear();
+          const jn=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+          dateStr=jn[d.getUTCDay()]+' '+d.getUTCDate();
+        }
+        if(mois===null)continue;
+        if(moisCible!==null&&(mois!==moisCible||annee!==S.annee)){console.log(`Ignoré: ${r[iV]} mois=${mois} moisCible=${moisCible}`);continue;}
+        const dcRaw = rowsRaw[i] ? rowsRaw[i][0] : null;
+        const dc=r[0];let moisCde=mois,anneeCde=annee;
+        if(typeof dcRaw==='number'){
+          const d=new Date(Date.UTC(1899,11,30));d.setUTCDate(d.getUTCDate()+Math.floor(dcRaw));
+          moisCde=d.getUTCMonth();anneeCde=d.getUTCFullYear();
+        } else if(dc instanceof Date){moisCde=dc.getMonth();anneeCde=dc.getFullYear();}
+        const mg=parseFloat(r[iM])||0,ca=r[iFI]==1?(parseFloat(r[iCA])||0):0,nj=parseFloat(r[iJ])||0;
+        const immat=String(r[iIm]||'').trim();
+        if(immat&&existants.has(immat))continue;
+        const vend=S.vendeurs.find(v=>v.nom===vnom);
+        if(vend){
+          vend.ventes.push({
+            date:dateStr,modele:String(r[iMo]||'').trim(),immat,client:String(r[iCl]||'').trim(),
+            marge:Math.round(mg*100)/100,myana:'',facture:true,
+            fi:r[iFI]===1,mad:r[iAd]===1,bulbee:r[iBu]===1,coyote:r[iCo]===1,protech:r[iPr]===1,euro:r[iEu]===1,
+            cession:String(r[iG]||'').toUpperCase().includes('OUI'),reprise:r[iRe]===1,voe:r[iLo]===1,
+            plus120:nj>=120,ca,mois,annee,moisCde,anneeCde,
+          });
+          if(immat)existants.add(immat);nb++;
+        }
+      }
+      render();await saveAll();
+      alert('✅ '+nb+' vente'+(nb>1?'s':'')+' importée'+(nb>1?'s':''));
+    }catch(err){alert('Erreur: '+err.message);}
   };
   reader.readAsArrayBuffer(file);
 }
-document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])parseExcel(e.target.files[0]);});
-renderAll();
+document.getElementById('impM').addEventListener('change',e=>{if(e.target.files[0])importXL(e.target.files[0],S.mois);e.target.value='';});
+document.getElementById('impA').addEventListener('change',e=>{if(e.target.files[0])importXL(e.target.files[0],null);e.target.value='';});
+
+function render(){rAnnual();rProg();rCards();rCumul();rVentes();}
+
+// ── DÉMARRAGE ──
+(async()=>{
+  const ok = await sbLoad();
+  if(ok){
+    document.getElementById('sst').textContent='Données chargées';
+  } else {
+    // Supabase vide — utiliser données Excel et sauvegarder
+    document.getElementById('sst').textContent='Initialisation depuis Excel...';
+    await saveAll();
+    document.getElementById('sst').textContent='Prêt';
+  }
+  render();
+})();
 </script>
 </body>
 </html>
