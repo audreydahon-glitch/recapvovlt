@@ -760,7 +760,7 @@ function parseExcel(file){
       const hdr=rows[hi];
       const ci=n=>hdr.findIndex(h=>h&&String(h).toLowerCase().includes(n.toLowerCase()));
       const iV=ci('vendeur'),iF=ci('facture'),iM=ci('reelle'),iK=ci('previsionnelle'),iR=ci('remise'),iB=ci('marque'),iC=ci('modele'),iD=ci('immat'),iE=ci('client');
-      const iA=ci('admin'),iCO=ci('coyote'),iFI=ci('fi '),iCA=ci('ca fin'),iAN=ci('annul'),iEU=ci('eurodatacar'),iBU=ci('bulbee');
+      const iA=ci('admin'),iCO=ci('coyote'),iFI=ci('fi '),iCA=ci('ca fin'),iAN=ci('annul'),iEU=ci('eurodatacar'),iBU=ci('bulbb');
       const newByMois={},newAtt=[],newDetail=[];
       for(let i=hi+1;i<rows.length;i++){
         const r=rows[i];
