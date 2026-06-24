@@ -615,8 +615,23 @@ function renderJuin(){
     <div class="section-label" style="color:#1d1d1f">🕐 Commandes en attente<span class="badge-att">${tAtt.nb} dossier${tAtt.nb>1?'s':''}</span></div>
     <div class="tbl-wrap"><table>${HDR_ATT}<tbody>${tblRowsAtt(att)}</tbody></table></div>
     <p class="note">* En attente = toutes commandes sans date de facture. Bulbee = colonne T du fichier Excel. Cliquez sur un montant de remise pour voir le détail.</p>
-    ${rows.length?`<div class="section-label" style="margin-top:16px">✅ Factures émises — Juin</div>
-    <div class="tbl-wrap"><table>${HDR}<tbody>${tblRows(rows,marge_all,true,[6],false)}</tbody></table></div>`:''}`;
+    ${rows.length?`
+    <div class="section-label" style="margin-top:16px;cursor:pointer" onclick="toggleFactures()">
+      ✅ Factures émises — Juin
+      <span id="facturesToggleIcon" style="font-size:12px;color:#6e6e73;margin-left:8px">▶ afficher</span>
+    </div>
+    <div id="facturesPanel" style="display:none">
+      <div class="tbl-wrap"><table>${HDR}<tbody>${tblRows(rows,marge_all,true,[6],false)}</tbody></table></div>
+    </div>`:''}`;
+}
+
+function toggleFactures(){
+  const panel = document.getElementById('facturesPanel');
+  const icon = document.getElementById('facturesToggleIcon');
+  if(!panel) return;
+  const open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  icon.textContent = open ? '▶ afficher' : '▼ masquer';
 }
 
 function renderAll(){
