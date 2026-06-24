@@ -464,20 +464,13 @@ function handleRemise(key){
 const _bulbeeRegistry = {};
 let _bulbeeIdx = 0;
 
-function bulbeeCellNb(r, moisList, attente){
-  const nb = r.bulbee||0;
-  if(!nb) return '<span class="empty-cell">—</span>';
-  const key = 'b' + (_bulbeeIdx++);
-  _bulbeeRegistry[key] = {vendeur: r.v, moisList, attente};
-  return `<span class="remise-link" style="color:#0071e3;text-decoration-color:#0071e3" onclick="handleBulbee('${key}')">${nb}</span>`;
-}
-function bulbeeCellPct(r, moisList, attente){
+function bulbeeCells(r, moisList, attente){
   const nb = r.bulbee||0;
   const pbu = pct(nb, r.nb);
-  if(!nb) return `<span class="pill pill-n">0%</span>`;
+  if(!nb) return `<td><span class="empty-cell">—</span></td><td><span class="pill pill-n">0%</span></td>`;
   const key = 'b' + (_bulbeeIdx++);
   _bulbeeRegistry[key] = {vendeur: r.v, moisList, attente};
-  return `<span class="${pcBulbee(pbu)}" style="cursor:pointer" onclick="handleBulbee('${key}')">${pbu}</span>`;
+  return `<td><span class="remise-link" style="color:#0071e3;text-decoration-color:#0071e3" onclick="handleBulbee('${key}')">${nb}</span></td><td><span class="${pcBulbee(pbu)}" style="cursor:pointer" onclick="handleBulbee('${key}')">${pbu}</span></td>`;
 }
 function handleBulbee(key){
   const d = _bulbeeRegistry[key];
@@ -531,7 +524,7 @@ function tblRows(rows,marge_all_total,showMargeVend,moisList,attente){
       <td>${r.admin||'<span class="empty-cell">—</span>'}</td><td><span class="${pcAdmin(padm)}">${padm}</span></td>
       <td>${r.coyote||'<span class="empty-cell">—</span>'}</td><td><span class="${pcCoyote(pco)}">${pco}</span></td>
       <td>${(r.euro||0)||'<span class="empty-cell">—</span>'}</td><td><span class="${pcEuro(peu)}">${peu}</span></td>
-      <td>${bulbeeCellNb(r,moisList,attente)}</td><td>${bulbeeCellPct(r,moisList,attente)}</td>
+      ${bulbeeCells(r,moisList,attente)}
       <td>${remiseCell(r,moisList,attente)}</td>
     </tr>`;
   }
@@ -564,7 +557,7 @@ function tblRowsAtt(rows){
       <td>${r.admin||'<span class="empty-cell">—</span>'}</td><td><span class="${pcAdmin(padm)}">${padm}</span></td>
       <td>${r.coyote||'<span class="empty-cell">—</span>'}</td><td><span class="${pcCoyote(pco)}">${pco}</span></td>
       <td>${(r.euro||0)||'<span class="empty-cell">—</span>'}</td><td><span class="${pcEuro(peu)}">${peu}</span></td>
-      <td>${bulbeeCellNb(r,null,true)}</td><td>${bulbeeCellPct(r,null,true)}</td>
+      ${bulbeeCells(r,null,true)}
       <td>${remiseCell(r,null,true)}</td>
     </tr>`;
   }
@@ -778,7 +771,8 @@ function parseExcel(file){
         const marge=parseFloat(String(r[iM]||0).replace(',','.'))||0;
         const margeK=parseFloat(String(r[iK]||0).replace(',','.'))||0;
         const remise=parseFloat(String(r[iR]||0).replace(',','.'))||0;
-        const admin=r[iA]==1?1:0,coyote=r[iCO]==1?1:0,fi=r[iFI]==1?1:0,euro=r[iEU]==1?1:0,bulbee=r[iBU]==1?1:0;
+        const admin=r[iA]==1?1:0,coyote=r[iCO]==1?1:0,fi=r[iFI]==1?1:0,euro=r[iEU]==1?1:0;
+        const _bu=r[iBU];const bulbee=(_bu==1||String(_bu||'').trim().toLowerCase()==='oui'||String(_bu||'').trim().toLowerCase()==='x'||String(_bu||'').trim().toLowerCase()==='yes')?1:0;
         const ca=fi?parseFloat(String(r[iCA]||0).replace(/[^\d.-]/g,''))||0:0;
         const isExcluded=EXCLUDE.includes(v);
         let mo=0;
