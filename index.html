@@ -484,15 +484,17 @@ function tblRowsAtt(rows){
     <td>${t.admin}</td><td><span class="${pcAdmin(padm)}">${padm}</span></td>
     <td>${t.coyote}</td><td><span class="${pcCoyote(pco)}">${pco}</span></td>
     <td>${t.euro}</td><td><span class="${pcEuro(peu)}">${peu}</span></td>
-    <td>${t.bulbee}</td><td><span class="${pcBulbee(pbu)}">${pbu}</span></td>
+    <td>${t.bulbee||'<span class="empty-cell">—</span>'}</td><td><span class="${pcBulbee(pbu)}">${pbu}</span></td>
     <td class="${t.remise>0?'neg':'empty-cell'}">${t.remise>0?fmtE(t.remise):'—'}</td>
   </tr>`;
   return h;
 }
 
-function kpisHtml(t,marge_all,attNb){
+function kpisHtml(t,marge_all,attNb,bulbeeNb){
   const pfi=pct(t.fi,t.nb),padm=pct(t.admin,t.nb),pco=pct(t.coyote,t.nb),peu=pct(t.euro,t.nb);
   const marg=marge_all!==undefined?marge_all:t.mv;
+  const pbu=bulbeeNb!==undefined&&attNb>0?Math.round(bulbeeNb/attNb*100)+'%':'—';
+  const buColor=bulbeeNb!==undefined&&attNb>0?(Math.round(bulbeeNb/attNb*100)>=80?'#28a745':Math.round(bulbeeNb/attNb*100)>=50?'#fd7e14':'#dc3545'):'#aeaeb2';
   return`
     <div class="kpi"><div class="kpi-l">Factures émises</div><div class="kpi-v">${t.nb}</div><div class="kpi-s">vendeurs uniquement</div></div>
     <div class="kpi"><div class="kpi-l">Marge VO HT</div><div class="kpi-v ${marg<0?'neg':''}" style="font-size:16px;white-space:nowrap">${fmtE2(marg)}</div><div class="kpi-s">col. M — toutes lignes</div></div>
@@ -502,7 +504,8 @@ function kpisHtml(t,marge_all,attNb){
     <div class="kpi"><div class="kpi-l">% Coyote</div><div class="kpi-v">${pco}</div><div class="kpi-s">${t.coyote} coyotes</div></div>
     <div class="kpi"><div class="kpi-l">% Eurodatacar</div><div class="kpi-v">${peu}</div><div class="kpi-s">${t.euro} eurodatacar</div></div>
     <div class="kpi" style="cursor:pointer" onclick="openRemisesGlobal()"><div class="kpi-l">Remises TTC</div><div class="kpi-v ${t.remise>0?'neg':''}">${t.remise>0?fmtE(t.remise):'—'}</div><div class="kpi-s">🔍 cliquer pour détail</div></div>
-    ${attNb!==undefined?`<div class="kpi"><div class="kpi-l">En attente</div><div class="kpi-v" style="color:#fd7e14">${attNb}</div><div class="kpi-s">non facturés</div></div>`:''}`;
+    ${attNb!==undefined?`<div class="kpi"><div class="kpi-l">En attente</div><div class="kpi-v" style="color:#fd7e14">${attNb}</div><div class="kpi-s">non facturés</div></div>`:''}
+    ${bulbeeNb!==undefined?`<div class="kpi"><div class="kpi-l">Bulbee (attente)</div><div class="kpi-v" style="color:${buColor}">${bulbeeNb||'—'}</div><div class="kpi-s">${pbu} des commandes</div></div>`:''}`;
 }
 
 function renderSimple(panelId,moisList){
@@ -522,7 +525,7 @@ function renderJuin(){
   const{rows,marge_all}=mergeMonths([6]);
   const t=sumRows(rows);
   document.getElementById('panel-juin').innerHTML=`
-    <div class="kpis">${kpisHtml(t,marge_all,tAtt.nb)}</div>
+    <div class="kpis">${kpisHtml(t,marge_all,tAtt.nb,tAtt.bulbee)}</div>
     <div class="section-label" style="color:#1d1d1f">🕐 Commandes en attente<span class="badge-att">${tAtt.nb} dossier${tAtt.nb>1?'s':''}</span></div>
     <div class="tbl-wrap"><table>${HDR_ATT}<tbody>${tblRowsAtt(att)}</tbody></table></div>
     <p class="note">* En attente = toutes commandes sans date de facture. Bulbee = colonne T du fichier Excel. Cliquez sur un montant de remise pour voir le détail.</p>
