@@ -820,7 +820,7 @@ function parseExcel(file){
   reader.readAsArrayBuffer(file);
 }
 // ─── SAUVEGARDE AUTOMATIQUE ───
-const SAVE_KEY = 'recap_vo_data_v2';
+const SAVE_KEY = 'recap_vo_data_v3';
 let _saveTimer = null;
 
 function setSaveStatus(state, text){
@@ -862,6 +862,11 @@ function loadAutoSave(){
     if(snap.att){ D.att = snap.att; }
     if(snap.detail){ D.detail = snap.detail; }
     if(snap.objectifs){ OBJECTIFS = snap.objectifs; saveObj(OBJECTIFS); }
+    // Migration : ajouter bulbee:0 si manquant
+    for(const mo of Object.values(D.byMois||{}))
+      for(const r of (mo.rows||[])) if(r.bulbee===undefined) r.bulbee=0;
+    for(const r of (D.att||[])) if(r.bulbee===undefined) r.bulbee=0;
+    for(const r of (D.detail||[])) if(r.bulbee===undefined) r.bulbee=false;
     const d = new Date(snap.savedAt);
     setSaveStatus('saved','✓ Restauré du ' + d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}));
     return true;
