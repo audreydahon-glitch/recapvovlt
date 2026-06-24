@@ -829,7 +829,7 @@ function parseExcel(file){
   reader.readAsArrayBuffer(file);
 }
 // ─── SAUVEGARDE AUTOMATIQUE ───
-const SAVE_KEY = 'recap_vo_data_v3';
+const SAVE_KEY = 'recap_vo_data_v4';
 let _saveTimer = null;
 
 function setSaveStatus(state, text){
@@ -921,6 +921,9 @@ function importSave(input){
 }
 
 document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])parseExcel(e.target.files[0]);});
+
+// Nettoyer les anciennes sauvegardes corrompues
+['recap_vo_data_v1','recap_vo_data_v2','recap_vo_data_v3'].forEach(k=>localStorage.removeItem(k));
 
 // Charger sauvegarde existante ou utiliser données initiales
 const hadSave = loadAutoSave();
