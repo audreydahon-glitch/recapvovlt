@@ -592,6 +592,7 @@ function kpisHtml(t,marge_all,attNb,bulbeeNb){
     <div class="kpi"><div class="kpi-l">% Eurodatacar</div><div class="kpi-v">${peu}</div><div class="kpi-s">${t.euro} eurodatacar</div></div>
     ${bulbeeNb!==undefined?`<div class="kpi"><div class="kpi-l">% Bulbee</div><div class="kpi-v">${pbu}</div><div class="kpi-s">${bulbeeNb||0} bulbee / ${t.nb} fact.</div></div>`:''}
     <div class="kpi" style="cursor:pointer" onclick="openRemisesGlobal()"><div class="kpi-l">Remises TTC</div><div class="kpi-v ${t.remise>0?'neg':''}">${t.remise>0?fmtE(t.remise):'—'}</div><div class="kpi-s">🔍 cliquer pour détail</div></div>`;
+}
 
 function renderSimple(panelId,moisList){
   const{rows,marge_all}=mergeMonths(moisList);
