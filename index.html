@@ -155,6 +155,39 @@ tr.tot-row td{font-weight:700;background:#f5f5f7}
   </div>
 </div>
 
+<!-- Modal détail Bulbee -->
+<div class="modal-overlay" id="modalBulbeeOverlay" onclick="if(event.target===this)closeBulbeeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalBulbeeTitle">Véhicules Bulbee</div>
+        <div class="modal-sub" id="modalBulbeeSub"></div>
+      </div>
+      <button class="modal-close" onclick="closeBulbeeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-total" style="background:#e3f0fc">
+        <span>Total véhicules Bulbee :</span>
+        <strong id="modalBulbeeTotal" style="color:#0071e3">—</strong>
+      </div>
+      <div class="tbl-wrap" style="margin-bottom:0">
+        <table>
+          <thead><tr>
+            <th style="text-align:left">Vendeur</th>
+            <th style="text-align:left">Marque</th>
+            <th style="text-align:left">Modèle</th>
+            <th style="text-align:left">Immat.</th>
+            <th style="text-align:left">Client</th>
+            <th>Mois</th>
+            <th>Marge HT</th>
+          </tr></thead>
+          <tbody id="modalBulbeeBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 const EXCLUDE=['ALCOPA','CESSION','MARCHAND'];
@@ -164,50 +197,50 @@ const MOIS_NOM={1:'Janvier',2:'Février',3:'Mars',4:'Avril',5:'Mai',6:'Juin',7:'
 const D = {
   byMois:{
     1:{marge_all:130578.53,rows:[
-      {v:'BDC',nb:3,mv:5793,remise:0,admin:0,coyote:0,fi:2,ca:53015,euro:0},
-      {v:'CHAUMONT',nb:12,mv:22711,remise:54483,admin:1,coyote:0,fi:4,ca:188771,euro:0},
-      {v:'DONATO',nb:10,mv:24655,remise:5425,admin:3,coyote:2,fi:1,ca:23802,euro:2},
-      {v:'LE GALLO',nb:6,mv:14470,remise:2721,admin:1,coyote:0,fi:1,ca:25000,euro:0},
-      {v:'MOTTAS',nb:2,mv:9672,remise:942,admin:0,coyote:0,fi:1,ca:8000,euro:0},
-      {v:'SAEZ',nb:14,mv:43156,remise:2487,admin:7,coyote:6,fi:5,ca:141102,euro:0},
+      {v:'BDC',nb:3,mv:5793,remise:0,admin:0,coyote:0,fi:2,ca:53015,euro:0,bulbee:0},
+      {v:'CHAUMONT',nb:12,mv:22711,remise:54483,admin:1,coyote:0,fi:4,ca:188771,euro:0,bulbee:0},
+      {v:'DONATO',nb:10,mv:24655,remise:5425,admin:3,coyote:2,fi:1,ca:23802,euro:2,bulbee:0},
+      {v:'LE GALLO',nb:6,mv:14470,remise:2721,admin:1,coyote:0,fi:1,ca:25000,euro:0,bulbee:0},
+      {v:'MOTTAS',nb:2,mv:9672,remise:942,admin:0,coyote:0,fi:1,ca:8000,euro:0,bulbee:0},
+      {v:'SAEZ',nb:14,mv:43156,remise:2487,admin:7,coyote:6,fi:5,ca:141102,euro:0,bulbee:0},
     ]},
     2:{marge_all:138557.18,rows:[
-      {v:'BDC',nb:2,mv:3419,remise:4229,admin:2,coyote:0,fi:0,ca:0,euro:0},
-      {v:'CHAUMONT',nb:9,mv:24557,remise:694,admin:4,coyote:1,fi:4,ca:145989,euro:0},
-      {v:'DONATO',nb:5,mv:2405,remise:1484,admin:1,coyote:0,fi:0,ca:0,euro:0},
-      {v:'LE GALLO',nb:5,mv:5606,remise:2442,admin:1,coyote:0,fi:1,ca:15000,euro:0},
-      {v:'MOTTAS',nb:5,mv:5365,remise:158,admin:2,coyote:0,fi:3,ca:38085,euro:0},
-      {v:'ROUTARD',nb:13,mv:28761,remise:4250,admin:5,coyote:1,fi:1,ca:16130,euro:1},
-      {v:'SAEZ',nb:11,mv:34324,remise:2416,admin:7,coyote:5,fi:4,ca:81498,euro:3},
+      {v:'BDC',nb:2,mv:3419,remise:4229,admin:2,coyote:0,fi:0,ca:0,euro:0,bulbee:0},
+      {v:'CHAUMONT',nb:9,mv:24557,remise:694,admin:4,coyote:1,fi:4,ca:145989,euro:0,bulbee:0},
+      {v:'DONATO',nb:5,mv:2405,remise:1484,admin:1,coyote:0,fi:0,ca:0,euro:0,bulbee:0},
+      {v:'LE GALLO',nb:5,mv:5606,remise:2442,admin:1,coyote:0,fi:1,ca:15000,euro:0,bulbee:0},
+      {v:'MOTTAS',nb:5,mv:5365,remise:158,admin:2,coyote:0,fi:3,ca:38085,euro:0,bulbee:0},
+      {v:'ROUTARD',nb:13,mv:28761,remise:4250,admin:5,coyote:1,fi:1,ca:16130,euro:1,bulbee:0},
+      {v:'SAEZ',nb:11,mv:34324,remise:2416,admin:7,coyote:5,fi:4,ca:81498,euro:3,bulbee:0},
     ]},
     3:{marge_all:108101.87,rows:[
-      {v:'BDC',nb:2,mv:3233,remise:402,admin:2,coyote:0,fi:0,ca:0,euro:0},
-      {v:'CHAUMONT',nb:10,mv:15974,remise:6694,admin:1,coyote:0,fi:1,ca:26976,euro:0},
-      {v:'DONATO',nb:8,mv:14089,remise:1443,admin:2,coyote:3,fi:4,ca:67435,euro:1},
-      {v:'LE GALLO',nb:9,mv:10236,remise:3113,admin:2,coyote:1,fi:2,ca:43602,euro:0},
-      {v:'MOTTAS',nb:11,mv:23400,remise:0,admin:8,coyote:0,fi:7,ca:190200,euro:0},
-      {v:'ROUTARD',nb:28,mv:34257,remise:6420,admin:6,coyote:3,fi:7,ca:151897,euro:0},
-      {v:'SAEZ',nb:1,mv:3243,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:0},
+      {v:'BDC',nb:2,mv:3233,remise:402,admin:2,coyote:0,fi:0,ca:0,euro:0,bulbee:0},
+      {v:'CHAUMONT',nb:10,mv:15974,remise:6694,admin:1,coyote:0,fi:1,ca:26976,euro:0,bulbee:0},
+      {v:'DONATO',nb:8,mv:14089,remise:1443,admin:2,coyote:3,fi:4,ca:67435,euro:1,bulbee:0},
+      {v:'LE GALLO',nb:9,mv:10236,remise:3113,admin:2,coyote:1,fi:2,ca:43602,euro:0,bulbee:0},
+      {v:'MOTTAS',nb:11,mv:23400,remise:0,admin:8,coyote:0,fi:7,ca:190200,euro:0,bulbee:0},
+      {v:'ROUTARD',nb:28,mv:34257,remise:6420,admin:6,coyote:3,fi:7,ca:151897,euro:0,bulbee:0},
+      {v:'SAEZ',nb:1,mv:3243,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:0,bulbee:0},
     ]},
     4:{marge_all:119380.02,rows:[
-      {v:'BDC',nb:2,mv:3119,remise:0,admin:0,coyote:0,fi:0,ca:0,euro:1},
-      {v:'CHAUMONT',nb:5,mv:18815,remise:381,admin:3,coyote:0,fi:2,ca:34574,euro:0},
-      {v:'DONATO',nb:13,mv:24546,remise:0,admin:9,coyote:2,fi:5,ca:97391,euro:0},
-      {v:'LE GALLO',nb:8,mv:13072,remise:0,admin:5,coyote:0,fi:2,ca:38397,euro:2},
-      {v:'MOTTAS',nb:6,mv:6608,remise:0,admin:4,coyote:0,fi:3,ca:57017,euro:0},
-      {v:'ROUTARD',nb:19,mv:35912,remise:64,admin:9,coyote:2,fi:8,ca:253304,euro:0},
-      {v:'SAEZ',nb:5,mv:15211,remise:0,admin:3,coyote:5,fi:3,ca:94488,euro:0},
+      {v:'BDC',nb:2,mv:3119,remise:0,admin:0,coyote:0,fi:0,ca:0,euro:1,bulbee:0},
+      {v:'CHAUMONT',nb:5,mv:18815,remise:381,admin:3,coyote:0,fi:2,ca:34574,euro:0,bulbee:0},
+      {v:'DONATO',nb:13,mv:24546,remise:0,admin:9,coyote:2,fi:5,ca:97391,euro:0,bulbee:0},
+      {v:'LE GALLO',nb:8,mv:13072,remise:0,admin:5,coyote:0,fi:2,ca:38397,euro:2,bulbee:0},
+      {v:'MOTTAS',nb:6,mv:6608,remise:0,admin:4,coyote:0,fi:3,ca:57017,euro:0,bulbee:0},
+      {v:'ROUTARD',nb:19,mv:35912,remise:64,admin:9,coyote:2,fi:8,ca:253304,euro:0,bulbee:0},
+      {v:'SAEZ',nb:5,mv:15211,remise:0,admin:3,coyote:5,fi:3,ca:94488,euro:0,bulbee:0},
     ]},
     5:{marge_all:118047.88,rows:[
-      {v:'BDC',nb:1,mv:2607,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:1},
-      {v:'CHAUMONT',nb:4,mv:6336,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:0},
-      {v:'DONATO',nb:10,mv:46941,remise:0,admin:8,coyote:1,fi:4,ca:175007,euro:0},
-      {v:'LE GALLO',nb:2,mv:2147,remise:0,admin:0,coyote:0,fi:0,ca:0,euro:1},
-      {v:'ROUTARD',nb:15,mv:40294,remise:3094,admin:11,coyote:3,fi:6,ca:102788,euro:0},
-      {v:'SAEZ',nb:7,mv:10698,remise:0,admin:5,coyote:4,fi:1,ca:31819,euro:0},
+      {v:'BDC',nb:1,mv:2607,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:1,bulbee:0},
+      {v:'CHAUMONT',nb:4,mv:6336,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:0,bulbee:0},
+      {v:'DONATO',nb:10,mv:46941,remise:0,admin:8,coyote:1,fi:4,ca:175007,euro:0,bulbee:0},
+      {v:'LE GALLO',nb:2,mv:2147,remise:0,admin:0,coyote:0,fi:0,ca:0,euro:1,bulbee:0},
+      {v:'ROUTARD',nb:15,mv:40294,remise:3094,admin:11,coyote:3,fi:6,ca:102788,euro:0,bulbee:0},
+      {v:'SAEZ',nb:7,mv:10698,remise:0,admin:5,coyote:4,fi:1,ca:31819,euro:0,bulbee:0},
     ]},
     6:{marge_all:6801.07,rows:[
-      {v:'ROUTARD',nb:1,mv:-649,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:0},
+      {v:'ROUTARD',nb:1,mv:-649,remise:0,admin:1,coyote:0,fi:0,ca:0,euro:0,bulbee:0},
     ]},
   },
   att:[
@@ -362,8 +395,7 @@ function openRemise(vendeur, moisList, attente){
 }
 function closeModal(e){if(e.target===document.getElementById('modalOverlay'))closeModalDirect();}
 function closeModalDirect(){document.getElementById('modalOverlay').classList.remove('open');}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModalDirect();});
-
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModalDirect();closeBulbeeModal();}});
 // Détail remises global (depuis KPI) — tous vendeurs du panel actif
 let _currentMoisList = [6]; // Juin est l'onglet par défaut
 function openRemisesGlobal(){
@@ -397,6 +429,7 @@ const HDR=`<thead><tr>
   <th>Nbre Admin</th><th>% Admin</th>
   <th>Nbre Coyote</th><th>% Coyote</th>
   <th>Nbre Euro</th><th>% Euro</th>
+  <th>Nbre Bulbee</th><th>% Bulbee</th>
   <th>Remises TTC</th>
 </tr></thead>`;
 
@@ -427,11 +460,69 @@ function handleRemise(key){
   openRemise(d.vendeur, d.moisList, d.attente);
 }
 
+// Registre Bulbee cliquables
+const _bulbeeRegistry = {};
+let _bulbeeIdx = 0;
+
+function bulbeeCellNb(r, moisList, attente){
+  const nb = r.bulbee||0;
+  if(!nb) return '<span class="empty-cell">—</span>';
+  const key = 'b' + (_bulbeeIdx++);
+  _bulbeeRegistry[key] = {vendeur: r.v, moisList, attente};
+  return `<span class="remise-link" style="color:#0071e3;text-decoration-color:#0071e3" onclick="handleBulbee('${key}')">${nb}</span>`;
+}
+function bulbeeCellPct(r, moisList, attente){
+  const nb = r.bulbee||0;
+  const pbu = pct(nb, r.nb);
+  if(!nb) return `<span class="pill pill-n">0%</span>`;
+  const key = 'b' + (_bulbeeIdx++);
+  _bulbeeRegistry[key] = {vendeur: r.v, moisList, attente};
+  return `<span class="${pcBulbee(pbu)}" style="cursor:pointer" onclick="handleBulbee('${key}')">${pbu}</span>`;
+}
+function handleBulbee(key){
+  const d = _bulbeeRegistry[key];
+  if(!d) return;
+  openBulbee(d.vendeur, d.moisList, d.attente);
+}
+
+function openBulbee(vendeur, moisList, attente){
+  if(typeof moisList==='string'&&moisList!=='all'&&moisList!=='att'){
+    try{moisList=JSON.parse(moisList);}catch(e){moisList=[];}
+  }
+  let lines;
+  if(attente){
+    lines = D.detail.filter(d=>(!vendeur||d.v===vendeur)&&!d.fact&&d.bulbee);
+  } else if(moisList==='all'){
+    lines = D.detail.filter(d=>(!vendeur||d.v===vendeur)&&d.fact&&d.bulbee);
+  } else {
+    lines = D.detail.filter(d=>(!vendeur||d.v===vendeur)&&d.fact&&d.bulbee&&moisList.map(Number).includes(Number(d.mois)));
+  }
+  if(!lines.length){alert('Aucun véhicule Bulbee pour ce vendeur.');return;}
+  lines.sort((a,b)=>(a.v||'').localeCompare(b.v||'')||(a.mois||0)-(b.mois||0));
+  document.getElementById('modalBulbeeTitle').textContent = vendeur?'Bulbee — '+vendeur:'Bulbee — Tous vendeurs';
+  const periode = attente?'En attente':moisList==='all'?'Année 2026':moisList.map(m=>MOIS_NOM[m]).join(', ');
+  document.getElementById('modalBulbeeSub').textContent = periode;
+  document.getElementById('modalBulbeeTotal').textContent = lines.length+' véhicule'+(lines.length>1?'s':'');
+  document.getElementById('modalBulbeeBody').innerHTML = lines.map(l=>`<tr>
+    <td style="text-align:left;font-weight:600">${l.v||'—'}</td>
+    <td style="text-align:left">${l.marque||'—'}</td>
+    <td style="text-align:left">${l.modele||'—'}</td>
+    <td style="text-align:left;font-family:monospace;font-size:11px">${l.immat||'—'}</td>
+    <td style="text-align:left">${l.client||'—'}</td>
+    <td>${l.mois?MOIS_NOM[l.mois].substring(0,3):'Att.'}</td>
+    <td class="${l.marge<0?'neg':'pos'}">${fmtE2(l.marge)}</td>
+  </tr>`).join('');
+  document.getElementById('modalBulbeeOverlay').classList.add('open');
+}
+function closeBulbeeModal(){document.getElementById('modalBulbeeOverlay').classList.remove('open');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModalDirect();closeBulbeeModal();}});
+
 function tblRows(rows,marge_all_total,showMargeVend,moisList,attente){
-  if(!rows||!rows.length)return'<tr><td colspan="13" style="text-align:center;color:#aeaeb2;padding:20px">Aucune donnée</td></tr>';
+  if(!rows||!rows.length)return'<tr><td colspan="15" style="text-align:center;color:#aeaeb2;padding:20px">Aucune donnée</td></tr>';
   let h='';
   for(const r of rows){
     const pfi=pct(r.fi,r.nb),padm=pct(r.admin,r.nb),pco=pct(r.coyote,r.nb),peu=pct(r.euro||0,r.nb);
+    const pbu=pct(r.bulbee||0,r.nb);
     const marg=showMargeVend?fmtE2(r.mv):'—';
     h+=`<tr>
       <td>${r.v}</td><td>${r.nb}</td>
@@ -440,11 +531,12 @@ function tblRows(rows,marge_all_total,showMargeVend,moisList,attente){
       <td>${r.admin||'<span class="empty-cell">—</span>'}</td><td><span class="${pcAdmin(padm)}">${padm}</span></td>
       <td>${r.coyote||'<span class="empty-cell">—</span>'}</td><td><span class="${pcCoyote(pco)}">${pco}</span></td>
       <td>${(r.euro||0)||'<span class="empty-cell">—</span>'}</td><td><span class="${pcEuro(peu)}">${peu}</span></td>
+      <td>${bulbeeCellNb(r,moisList,attente)}</td><td>${bulbeeCellPct(r,moisList,attente)}</td>
       <td>${remiseCell(r,moisList,attente)}</td>
     </tr>`;
   }
   const t=sumRows(rows);
-  const pfi=pct(t.fi,t.nb),padm=pct(t.admin,t.nb),pco=pct(t.coyote,t.nb),peu=pct(t.euro,t.nb);
+  const pfi=pct(t.fi,t.nb),padm=pct(t.admin,t.nb),pco=pct(t.coyote,t.nb),peu=pct(t.euro,t.nb),pbu=pct(t.bulbee,t.nb);
   const totalMarge=marge_all_total!==undefined?marge_all_total:t.mv;
   h+=`<tr class="tot-row">
     <td>TOTAL</td><td>${t.nb}</td>
@@ -453,6 +545,7 @@ function tblRows(rows,marge_all_total,showMargeVend,moisList,attente){
     <td>${t.admin}</td><td><span class="${pcAdmin(padm)}">${padm}</span></td>
     <td>${t.coyote}</td><td><span class="${pcCoyote(pco)}">${pco}</span></td>
     <td>${t.euro}</td><td><span class="${pcEuro(peu)}">${peu}</span></td>
+    <td>${t.bulbee||'<span class="empty-cell">—</span>'}</td><td><span class="${pcBulbee(pbu)}">${pbu}</span></td>
     <td class="${t.remise>0?'neg':'empty-cell'}">${t.remise>0?fmtE(t.remise):'—'}</td>
   </tr>`;
   return h;
@@ -471,7 +564,7 @@ function tblRowsAtt(rows){
       <td>${r.admin||'<span class="empty-cell">—</span>'}</td><td><span class="${pcAdmin(padm)}">${padm}</span></td>
       <td>${r.coyote||'<span class="empty-cell">—</span>'}</td><td><span class="${pcCoyote(pco)}">${pco}</span></td>
       <td>${(r.euro||0)||'<span class="empty-cell">—</span>'}</td><td><span class="${pcEuro(peu)}">${peu}</span></td>
-      <td>${(r.bulbee||0)||'<span class="empty-cell">—</span>'}</td><td><span class="${pcBulbee(pbu)}">${pbu}</span></td>
+      <td>${bulbeeCellNb(r,null,true)}</td><td>${bulbeeCellPct(r,null,true)}</td>
       <td>${remiseCell(r,null,true)}</td>
     </tr>`;
   }
@@ -535,7 +628,9 @@ function renderJuin(){
 
 function renderAll(){
   Object.keys(_remiseRegistry).forEach(k => delete _remiseRegistry[k]);
+  Object.keys(_bulbeeRegistry).forEach(k => delete _bulbeeRegistry[k]);
   _remiseIdx = 0;
+  _bulbeeIdx = 0;
   renderSimple('panel-annee',[1,2,3,4,5,6]);
   renderJuin();
   renderSimple('panel-mai',[5]);
@@ -693,8 +788,8 @@ function parseExcel(file){
           else if(df instanceof Date){mo=df.getUTCMonth()+1;}
           else if(df){mo=parseInt(String(df).split(/[-/]/)[1])||0;}
         }
-        if(remise>0){
-          newDetail.push({v,mois:mo||null,marque:String(r[iB]||'').trim(),modele:String(r[iC]||'').trim(),immat:String(r[iD]||'').trim(),client:String(r[iE]||'').trim(),remise,marge:hasFact?marge:margeK,fact:!!hasFact});
+        if(remise>0||bulbee){
+          newDetail.push({v,mois:mo||null,marque:String(r[iB]||'').trim(),modele:String(r[iC]||'').trim(),immat:String(r[iD]||'').trim(),client:String(r[iE]||'').trim(),remise,marge:hasFact?marge:margeK,fact:!!hasFact,bulbee:!!bulbee});
         }
         if(hasFact){
           if(!mo)continue;
@@ -725,7 +820,7 @@ function parseExcel(file){
   reader.readAsArrayBuffer(file);
 }
 // ─── SAUVEGARDE AUTOMATIQUE ───
-const SAVE_KEY = 'recap_vo_data_v1';
+const SAVE_KEY = 'recap_vo_data_v2';
 let _saveTimer = null;
 
 function setSaveStatus(state, text){
