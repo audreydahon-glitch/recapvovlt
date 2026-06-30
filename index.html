@@ -101,11 +101,7 @@ tr.tot-row td{font-weight:700;background:#f5f5f7}
       <label class="upload-btn">⬆ Actualiser (Excel)<input type="file" accept=".xlsx,.xls" id="fileInput"></label>
     </div>
   </div>
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab(this,'juin')"><span class="tab-dot" style="background:#28a745"></span>Juin — M en cours</div>
-    <div class="tab" onclick="switchTab(this,'mai')"><span class="tab-dot" style="background:#fd7e14"></span>Mai — M-1</div>
-    <div class="tab" onclick="switchTab(this,'annee')"><span class="tab-dot" style="background:#0071e3"></span>Année (cumul)</div>
-  </div>
+  <div class="tabs" id="tabsContainer"></div>
 
   <!-- OBJECTIFS -->
   <div class="obj-section">
@@ -116,8 +112,8 @@ tr.tot-row td{font-weight:700;background:#f5f5f7}
     <div class="obj-grid" id="objGrid"></div>
   </div>
   <div id="panel-annee" class="panel"></div>
-  <div id="panel-juin" class="panel active"></div>
-  <div id="panel-mai" class="panel"></div>
+  <div id="panel-cours" class="panel active"></div>
+  <div id="panel-m1" class="panel"></div>
 </div>
 
 <!-- Modal détail remises -->
@@ -397,7 +393,7 @@ function closeModal(e){if(e.target===document.getElementById('modalOverlay'))clo
 function closeModalDirect(){document.getElementById('modalOverlay').classList.remove('open');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModalDirect();closeBulbeeModal();}});
 // Détail remises global (depuis KPI) — tous vendeurs du panel actif
-let _currentMoisList = [6]; // Juin est l'onglet par défaut
+let _currentMoisList = [6]; // sera réinitialisé sur le mois en cours dans renderAll
 function openRemisesGlobal(){
   const lines = D.detail.filter(d=>d.remise>0&&d.fact&&_currentMoisList.map(Number).includes(Number(d.mois)));
   if(!lines.length){alert('Aucune remise pour cette période.');return;}
@@ -594,6 +590,19 @@ function kpisHtml(t,marge_all,attNb,bulbeeNb){
     <div class="kpi" style="cursor:pointer" onclick="openRemisesGlobal()"><div class="kpi-l">Remises TTC</div><div class="kpi-v ${t.remise>0?'neg':''}">${t.remise>0?fmtE(t.remise):'—'}</div><div class="kpi-s">🔍 cliquer pour détail</div></div>`;
 }
 
+// ─── MOIS DYNAMIQUES (basé sur la date du jour) ───
+const NOW = new Date();
+const MOIS_COURANT = NOW.getMonth()+1; // 1-12
+const MOIS_M1 = MOIS_COURANT===1 ? 12 : MOIS_COURANT-1;
+const NOM_COURT = {1:'Janvier',2:'Février',3:'Mars',4:'Avril',5:'Mai',6:'Juin',7:'Juillet',8:'Août',9:'Septembre',10:'Octobre',11:'Novembre',12:'Décembre'};
+
+function renderTabsBar(){
+  document.getElementById('tabsContainer').innerHTML = `
+    <div class="tab active" onclick="switchTab(this,'cours')"><span class="tab-dot" style="background:#28a745"></span>${NOM_COURT[MOIS_COURANT]} — M en cours</div>
+    <div class="tab" onclick="switchTab(this,'m1')"><span class="tab-dot" style="background:#fd7e14"></span>${NOM_COURT[MOIS_M1]} — M-1</div>
+    <div class="tab" onclick="switchTab(this,'annee')"><span class="tab-dot" style="background:#0071e3"></span>Année (cumul)</div>`;
+}
+
 function renderSimple(panelId,moisList){
   const{rows,marge_all}=mergeMonths(moisList);
   const t=sumRows(rows);
@@ -605,23 +614,23 @@ function renderSimple(panelId,moisList){
     <p class="note">* Nbre factures = vendeurs uniquement (hors ALCOPA, CESSION, MARCHAND). Marge = colonne M toutes lignes. Cliquez sur un montant de remise pour voir le détail.</p>`;
 }
 
-function renderJuin(){
+function renderCoursPanel(){
   const att=D.att;
   const tAtt=sumRows(att);
-  const{rows,marge_all}=mergeMonths([6]);
+  const{rows,marge_all}=mergeMonths([MOIS_COURANT]);
   const t=sumRows(rows);
-  document.getElementById('panel-juin').innerHTML=`
+  document.getElementById('panel-cours').innerHTML=`
     <div class="kpis">${kpisHtml(t,marge_all,tAtt.nb,t.bulbee)}</div>
     <div class="section-label" style="color:#1d1d1f">🕐 Commandes en attente<span class="badge-att">${tAtt.nb} dossier${tAtt.nb>1?'s':''}</span></div>
     <div class="tbl-wrap"><table>${HDR_ATT}<tbody>${tblRowsAtt(att)}</tbody></table></div>
     <p class="note">* En attente = toutes commandes sans date de facture. Bulbee = colonne T du fichier Excel. Cliquez sur un montant de remise pour voir le détail.</p>
     ${rows.length?`
     <div class="section-label" style="margin-top:16px;cursor:pointer" onclick="toggleFactures()">
-      ✅ Factures émises — Juin
+      ✅ Factures émises — ${NOM_COURT[MOIS_COURANT]}
       <span id="facturesToggleIcon" style="font-size:12px;color:#6e6e73;margin-left:8px">▶ afficher</span>
     </div>
     <div id="facturesPanel" style="display:none">
-      <div class="tbl-wrap"><table>${HDR}<tbody>${tblRows(rows,marge_all,true,[6],false)}</tbody></table></div>
+      <div class="tbl-wrap"><table>${HDR}<tbody>${tblRows(rows,marge_all,true,[MOIS_COURANT],false)}</tbody></table></div>
     </div>`:''}`;
 }
 
@@ -639,17 +648,19 @@ function renderAll(){
   Object.keys(_bulbeeRegistry).forEach(k => delete _bulbeeRegistry[k]);
   _remiseIdx = 0;
   _bulbeeIdx = 0;
-  renderSimple('panel-annee',[1,2,3,4,5,6]);
-  renderJuin();
-  renderSimple('panel-mai',[5]);
-  // Initialiser objectifs sur Juin par défaut
-  const{rows,marge_all}=mergeMonths([6]);
-  updateObjectifsFromPanel('juin',rows,marge_all);
+  _currentMoisList = [MOIS_COURANT];
+  renderTabsBar();
+  renderSimple('panel-annee',[1,2,3,4,5,6,7,8,9,10,11,12]);
+  renderCoursPanel();
+  renderSimple('panel-m1',[MOIS_M1]);
+  // Initialiser objectifs sur le mois en cours par défaut
+  const{rows,marge_all}=mergeMonths([MOIS_COURANT]);
+  updateObjectifsFromPanel('cours',rows,marge_all);
 }
 
 // ─── OBJECTIFS ───
-const MOIS_LABELS = {juin:'Juin 2026', mai:'Mai 2026', annee:'Année 2026'};
-let currentTab = 'juin';
+const MOIS_LABELS = {cours:NOM_COURT[MOIS_COURANT]+' 2026', m1:NOM_COURT[MOIS_M1]+' 2026', annee:'Année 2026'};
+let currentTab = 'cours';
 
 // Charger objectifs depuis localStorage
 function loadObj(){
@@ -745,18 +756,18 @@ function switchTab(el,name){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('panel-'+name).classList.add('active');
-  if(name==='juin') _currentMoisList=[6];
-  else if(name==='mai') _currentMoisList=[5];
-  else _currentMoisList=[1,2,3,4,5,6];
+  if(name==='cours') _currentMoisList=[MOIS_COURANT];
+  else if(name==='m1') _currentMoisList=[MOIS_M1];
+  else _currentMoisList=[1,2,3,4,5,6,7,8,9,10,11,12];
   // Mettre à jour les objectifs selon l'onglet
-  if(name==='juin'){
-    const{rows,marge_all}=mergeMonths([6]);
-    updateObjectifsFromPanel('juin',rows,marge_all);
-  } else if(name==='mai'){
-    const{rows,marge_all}=mergeMonths([5]);
-    updateObjectifsFromPanel('mai',rows,marge_all);
+  if(name==='cours'){
+    const{rows,marge_all}=mergeMonths([MOIS_COURANT]);
+    updateObjectifsFromPanel('cours',rows,marge_all);
+  } else if(name==='m1'){
+    const{rows,marge_all}=mergeMonths([MOIS_M1]);
+    updateObjectifsFromPanel('m1',rows,marge_all);
   } else {
-    const{rows,marge_all}=mergeMonths([1,2,3,4,5,6]);
+    const{rows,marge_all}=mergeMonths([1,2,3,4,5,6,7,8,9,10,11,12]);
     updateObjectifsFromPanel('annee',rows,marge_all);
   }
 }
